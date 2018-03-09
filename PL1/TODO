@@ -1,0 +1,23 @@
+-------------------------------------------------------------------------------------------
+---------------------------------Processamento de Linguagens-------------------------------
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+------Nota: FAZER MAIS DO Q UM TEMA, PARA TERMOS BOA NOTA (O IDEAL ERA FAZER TODOS)--------
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Enunciado número: min(78985, 77870, 79116) % 5 + 1 =
+				= 77870 % 5 + 1
+				= 0 + 1
+				= 1
+
+TODO: 	
+	1.  Especificar os padrões de frases que quer encontrar no texto-fonte, através de ERs.
+	2.  Identificar as acões semânticas a realizar como reação ao reconhecimento de cada um desses padrões.
+	3.  Identificar as Estruturas de dados globais que possa eventualmente precisar para armazenar temporaria-
+		mente a informação que vai extraindo do texto-fonte ou que vai construindo à medida que o processamento
+		avança.
+	4.  Desenvolver um Filtro de Texto para fazer o reconhecimento dos padrões identificados e proceder à trans-
+		formação pretendida, com recurso ao Sistema de Produção Gawk.
