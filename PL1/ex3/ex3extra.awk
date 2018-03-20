@@ -6,12 +6,16 @@ BEGIN {
   linhas=0
 }
 
-{
-  linhas++
+/[a-zA-Z]+/ {
+  print;
 }
 
+ x=1 
+    while ( x<NF ) { 
+        print $x "\t" 
+        x++ 
+    } 
+
 END {
-  print "Extratos (<ext>): " ext
-  print "Paragrafos (<p>): " p
-  print "Frases (<s>): " s
+  print linhas
 }
