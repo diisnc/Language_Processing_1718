@@ -1,5 +1,12 @@
 # Contar número de extratos, parágrafos, e frases.
 
+# Example:
+# gawk -f exextra.awk -v word='governo' fl0.txt | sort -k 1 -n -r
+# instead of governo you use any word you wanna search
+# sort options: -k selects column (nr 1 in this case)
+# -n orders by number
+# -r reverses it
+
 BEGIN {
   # FS=" "
   # By default, FS is set to a single space character, which awk interprets to mean "one or more spaces or tabs."
