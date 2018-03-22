@@ -72,7 +72,24 @@ END {
 
     	putComma=1
     }
-    print "Encontrou " exists " " word
-    print "#Previsoes: " saved
-    print "Sugestao: " sugestedWord
+
+  # Print chart closing and options. Also html closing elements.
+  print "]);"
+
+  print "// Optional; add a title and set the width and height of the chart"
+  print "var options = {'title':'" sugestedWord "', 'width':550, 'height':400};"
+
+  print "// Display the chart inside the <div> element with id='piechart'"
+  print "var chart = new google.visualization.PieChart(document.getElementById('piechart'));"
+  print "chart.draw(data, options);"
+  print "}"
+  print "</script>"
+
+  print "</body>"
+  print "</html>"
+
+  # Debugging
+  # print "Encontrou " exists " " word
+  # print "#Previsoes: " saved
+  # print "Sugestao: " sugestedWord
 }
