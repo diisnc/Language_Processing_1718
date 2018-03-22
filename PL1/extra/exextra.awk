@@ -16,6 +16,25 @@ BEGIN {
   saved=0
   numSugestion=0
   sugestedWord
+  putComma=0
+
+  print "<html lang='pt-PT'>"
+	print "<body>"
+
+	print "<h1>Próxima palavra</h1>"
+
+	print "<div id='piechart'></div>"
+
+	print "<script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>"
+
+	print "<script type='text/javascript'>"
+	print "// Load google charts"
+	print "google.charts.load('current', {'packages':['corechart']});"
+	print "google.charts.setOnLoadCallback(drawChart);"
+
+	print "// Draw the chart and set the chart values"
+	print "function drawChart() {"
+	print "var data = google.visualization.arrayToDataTable(["
 }
 
 $2~/[a-zA-Z]+/ {
@@ -37,11 +56,18 @@ $2~/[a-zA-Z]+/ {
 
 END {
 	for (i in previsao) {
-    	print previsao[i] ":" i;
+    	#print previsao[i] ":" i;
     	if (previsao[i] > numSugestion) {
     		numSugestion=previsao[i];
     		sugestedWord=i;
     	}
+
+    	# Print , after the first argument
+    	if (putComma) print ",\n"
+    	# Print the arguments for html graph
+    	print "['" i "', '" previsao[i] "']"
+
+    	putComma=1
     }
     print "Encontrou " exists " " word
     print "#Previsoes: " saved
