@@ -1,0 +1,20 @@
+<html lang='pt-PT'>
+<body>
+<h1>Próxima palavra</h1>
+<div id='piechart'></div>
+<script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
+<script type='text/javascript'>
+// Load google charts
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawChart);
+// Draw the chart and set the chart values
+function drawChart() {
+var data = google.visualization.arrayToDataTable([
+['Prevision', 'Word possibilities']
+['entre', 1]
+,
+
+['detalha', 1]
+Encontrou 2 concelhos
+#Previsoes: 2
+Sugestao: entre

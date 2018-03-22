@@ -18,6 +18,7 @@ BEGIN {
   sugestedWord
   putComma=0
 
+  pritn "<!DOCTYPE html>"
   print "<html lang='pt-PT'>"
 	print "<body>"
 
@@ -64,8 +65,10 @@ END {
 
     	# Print , after the first argument
     	if (putComma) print ",\n"
+      else print "['Prevision', 'Word possibilities'],"
+
     	# Print the arguments for html graph
-    	print "['" i "', '" previsao[i] "']"
+    	print "['" i "', " previsao[i] "]"
 
     	putComma=1
     }
