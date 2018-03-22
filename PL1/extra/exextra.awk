@@ -1,11 +1,6 @@
-# Contar número de extratos, parágrafos, e frases.
-
 # Example:
-# gawk -f exextra.awk -v word='governo' fl0.txt | sort -k 1 -n -r
+# gawk -f exextra.awk -v word='governo' fl0.txt > filename.html
 # instead of governo you use any word you wanna search
-# sort options: -k selects column (nr 1 in this case)
-# -n orders by number
-# -r reverses it
 
 BEGIN {
   # FS=" "
@@ -22,7 +17,7 @@ BEGIN {
   print "<html lang='pt-PT'>"
 	print "<body>"
 
-	print "<h1>Próxima palavra</h1>"
+	print "<h1>" word "</h1>"
 
 	print "<div id='piechart'></div>"
 
@@ -38,7 +33,7 @@ BEGIN {
 	print "var data = google.visualization.arrayToDataTable(["
 }
 
-$2~/^[a-zA-Z]+[^'][a-zA-Z]*$/ {
+$2~/^[a-zA-Z]+[^']?[a-zA-Z]*$/ {
 
 	# word after the one which we are looking for
 	if(saveProx==1) {
