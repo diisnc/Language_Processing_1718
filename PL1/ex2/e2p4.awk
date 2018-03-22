@@ -22,3 +22,5 @@ END{
     }
 
 }
+
+#dizer q n faz sentido fazer um dicionario q nao tenha pos

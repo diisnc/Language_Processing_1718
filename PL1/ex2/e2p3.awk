@@ -1,10 +1,10 @@
 BEGIN{}
-NF>0{
-        $6~/\=verb/{verbos[$3]++;}
-        $6~/noun/{nomes[$3]++;}
-        $6~/adjective/{adjectivos[$3]++;}
-        $6~/adverb/{adverbios[$3]++;}
-}
+
+        /\=verb/{verbos[$3]++;}
+        /\=noun/{nomes[$3]++;}
+        /\=adjective/{adjectivos[$3]++;}
+        /\=adverb/{adverbios[$3]++;}
+
 END{
         print("--------------------------------$VERBOS--------------------------------")
         for(ind in verbos){print ind}
@@ -18,4 +18,7 @@ END{
         print("--------------------------------$ADVERBIOS--------------------------------")
         for(ind in adverbios){print ind}
 }
+
+
+# antes estava /verb/{verbos[$3]++;}, e apanhava as cenas da coluna "árvore"
 
