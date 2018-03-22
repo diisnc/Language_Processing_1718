@@ -1,5 +1,0 @@
-Sugerir próxima palavra com base numa palavra introduzida.
-Monitorizar conteúdos mais pesquisados.
-Ler palavra a palavra de um texto introduzido como input e utilizar o gawk para, a partir do cetempublico, criar um conhecimento que permita fazer a correção de palavras mal escritas.
-Ver se uma notícia tem teor negativo ou positivo.
-Ver quais os termos mais pesquisados.
