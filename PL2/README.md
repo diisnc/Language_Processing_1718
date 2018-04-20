@@ -107,7 +107,7 @@ Esta expressão faz o mesmo que a anterior, mas em vez de capturar o autor, capt
 
 Mais uma vez, queremos detetar o campoe entrar no contexto que o captura.
 
-#### 5. `<AUTHOR>[\{"](\{[^{}"]*\}|[^{}"])*[\}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }`
+#### 5. `<AUTHOR>[{"](\{[^{}"]*\}|[^{}"])*[}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }`
 
 Esta expressão é a mais complicada do ficheiro.
 
@@ -115,19 +115,20 @@ Dentro do contexto AUTHOR, queremos capturar o valor do campo, que pode ser deli
 e que pelo meio pode ter "newlines" e mais um nível de profundidade de chavetas ({}), desde que sejam fechadas.
 
 ```text
-[\{"]  (  \{[^{}"]*\}  |  [^{}"]  )*  [\}"]
-  1           2             3           1
+[{"]  (  \{[^{}"]*\}  |  [^{}"]  )*  [}"]
+1            2             3     4    1
 ```
 
-1. Indica que o campo pode ser delimitado por chavetas ou aspas
+1. Indica que o campo pode ser delimitado por chavetas ou aspas.
 2. Indica que o campo pode conter chavetas fechadas com qualquer coisa lá dentro que não seja chavetas ou aspas. Provavelmente também não devem haver "newlines" dentro destas chavetas, mas isso não entra em conflito com os nossos objetivos, e o nosso trabalho não é validar o ficheiro.
 3. Indica que o campo pode conter quaisquer caracteres que não chavetas ou aspas, incluindo "newlines".
+4. Indica que 2. e 3. podem ser repetidos 0 ou mais vezes.
 
 ##### Ações Semânticas
 
 Queremos guardar o valor do campo autor da entrada pela qual estamos a passar, e de seguida voltar ao contexto inicial.
 
-#### 6. `<TITLE>[\{"](\{[^{}"]*\}|[^{}"])*[\}"]   { onTitleDetection(yytext); BEGIN INITIAL; }`
+#### 6. `<TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]   { onTitleDetection(yytext); BEGIN INITIAL; }`
 
 Esta expressão é igual à anterior, mas acionada no contexto TITLE em vez de AUTHOR.
 
