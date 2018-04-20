@@ -53,32 +53,24 @@
       // We'll be storing an entry.
       entryCounter++;
     }
-
-    printf("%d - Got a category: %s<br>\n", entryCounter, category);
   }
 
   void onIDDetection(char* line) {
     char *id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
     strcpy(id, line);
     ids[entryCounter] = id;
-
-    printf("%d - ID: %s<br>\n", entryCounter, id);
   }
 
   void onTitleDetection(char* line) {
     char *title = malloc(MAX_FIELD_LENGTH * sizeof(*title));
     trimStringEnds(line, title);
     titles[entryCounter] = title;
-
-    printf("%d - Title: %s<br>\n", entryCounter, title);
   }
 
   void onAuthorDetection(char* line) {
     char *author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
     trimStringEnds(line, author);
     authors[entryCounter] = author;
-
-    printf("%d - Author: %s<br>\n", entryCounter, author);
   }
 %}
 
