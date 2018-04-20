@@ -4,23 +4,20 @@
 
   #define NUM_OF_CATEGORIES 13 // Update this if you change categories[]
   #define MAX_ENTRIES 1024 // Update this if you need more bibtex entries (We could use a dynamic array)
+  #define MAX_AUTHORS 64 // Update this if you need to allow more authors per entry
   #define MAX_FIELD_LENGTH 1024 // Update this if bibtex fields can be bigger (We could use a better strcpy)
   #define MAX_SUBSTRINGS 64 // Number of substrings to support on splitStringOnString
 
-  // Data structures for counting category occurences
-  const char* categories[] = {"article", "book", "booklet", "inbook", "incollection", "inproceedings", "manual", "mastersthesis", "misc", "phdthesis", "proceedings", "techreport", "unpublished"};
-  int counters[NUM_OF_CATEGORIES];
+  // Globals
+  char* currentTitle;
+  char* currentID;
+  char* currentAuthors[MAX_AUTHORS];
+  int currentAuthorsLength = 0;
+  int startedWritingCurrentAuthor = 0;
+  char* allAuthors[MAX_AUTHORS];
+  int allAuthorsLength = 0;
+  char* allWorks[MAX_AUTHORS];
 
-  // Data structures for filtering IDs, authors, and titles
-  char* ids[MAX_ENTRIES];
-  char* authors[MAX_ENTRIES];
-  char* titles[MAX_ENTRIES];
-
-  // State variable - what entry index are we currently on?
-  // Starts at -1 because we increment right away,
-  // we can't increment at the end of onCategoryDetection
-  // because other functions run after it that depend on the counter
-  int entryCounter = -1;
 
   void trimStringEnds(char* string, char* empty) {
     char* copy = string;
@@ -29,81 +26,100 @@
     empty[strlen(empty) - 1] = '\0'; // Last string character becomes \0
   }
 
-  void splitStringOnString(char* str, char* delimiterStr) {
-
-    int numOfSubstrings = 0;
-    char* substrings[MAX_SUBSTRINGS];
-
-    // Loop over the string
-    int lastSaveIndex = 0;
-    char* a = str;
-    for ( ; *a; ++a) {
-
-      // Check if next characters are equal to delimiterStr
-      char* b = malloc(MAX_FIELD_LENGTH * sizeof(*b));
-      b = strcpy(b, a);
-      b[strlen(delimiterStr)] = '\0'; // Terminate string for comparison on length of characteres of delimiter
-      if (strcmp(a, delimiterStr) == 0) {
-
-        // Add previous string to array
-        char* c = malloc(MAX_FIELD_LENGTH * sizeof(*c));
-        strcpy(c, a[lastSaveIndex]);
-        substrings[numOfSubstrings] = c;
-
-        // Update lastSaveIndex
-        lastSaveIndex =
-
-        // Skip to end of delimiter
-        // Increment numOfSubstrings
-      }
-    };
-
-    // Add previous string to array
+  void appendCharToString(char* string, char c) {
+    string[strlen(string) + 1] = '\0';
+    string[strlen(string)] = c;
   }
 
-  void onCategoryDetection(char* line) {
-
-    char* category = malloc(MAX_FIELD_LENGTH * sizeof(*category));
-    trimStringEnds(line, category);
-
-    // Category to lowercase
-    char* c2 = category;
-    for ( ; *c2; ++c2) *c2 = tolower(*c2);
-
-    // Loop over categories, and if there is a match,
-    // increase the respective counter
-    int matched = 0;
-    int i;
-    for (i = 0; i < NUM_OF_CATEGORIES; i++) {
-      if (strcmp(category, categories[i]) == 0) {
-        counters[i]++;
-        matched = 1;
-        break;
-      }
-    }
-    if (matched == 1) {
-      // Increment counter, because there was a match!
-      // We'll be storing an entry.
-      entryCounter++;
-    }
-  }
-
-  void onIDDetection(char* line) {
-    char *id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
-    strcpy(id, line);
-    ids[entryCounter] = id;
-  }
-
-  void onTitleDetection(char* line) {
+  void storeTitle(char* line) {
     char *title = malloc(MAX_FIELD_LENGTH * sizeof(*title));
     trimStringEnds(line, title);
-    titles[entryCounter] = title;
+    currentTitle = title;
   }
 
-  void onAuthorDetection(char* line) {
-    char *author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
-    trimStringEnds(line, author);
-    authors[entryCounter] = author;
+  void storeID(char* line) {
+    char *id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
+    trimStringEnds(line, id);
+    currentTitle = id;
+  }
+
+  void oneCharOfAuthor(char* str) {
+    // printf("another char of author.\nchar: %s\nprevious: %s\n", str, currentAuthors[currentAuthorsLength]);
+
+    if (!startedWritingCurrentAuthor) {
+      // printf(" (initizalizing string) ");
+      char* author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
+      author[0] = 'T';
+      currentAuthors[currentAuthorsLength] = author;
+      startedWritingCurrentAuthor = 1;
+    }
+    appendCharToString(currentAuthors[currentAuthorsLength], str[0]);
+    // printf("current: %s\n", currentAuthors[currentAuthorsLength]);
+  }
+
+  void anotherAuthor() {
+    startedWritingCurrentAuthor = 0;
+    currentAuthorsLength++;
+
+    // printf("another author. previous: %s\n", currentAuthors[currentAuthorsLength - 1]);
+  }
+
+  void storeData() {
+
+    // Check if there is data to store
+    // (This could be called at the start of the file)
+    if (currentAuthorsLength == 0) {
+      return;
+    }
+
+    printf("storeData\n");
+
+    // Stopped writing an author, increment
+    currentAuthorsLength++;
+
+    // For each current author
+    int i;
+    for (i = 0; i < currentAuthorsLength; i++) {
+
+      printf("author: %s\n", currentAuthors[i]);
+
+      // Find author in all authors array
+      int found = 0;
+      int authorIndex = -1;
+      int j;
+      for (j = 0; j < allAuthorsLength; j++) {
+
+        // If found, get the index
+        if (strcmp(currentAuthors[i], allAuthors[j]) == 0) {
+          authorIndex = j;
+          found = 1;
+          break;
+        }
+      }
+      // If not found, append and index = allAuthorsLength
+      if (found = 0) {
+        char *s = malloc(MAX_FIELD_LENGTH * sizeof(*s));
+        strcpy(s, currentAuthors[i]);
+        allAuthors[allAuthorsLength] = s;
+        authorIndex = allAuthorsLength;
+        allAuthorsLength++;
+      }
+
+      // Add ID and Title string to the string in allWorks
+      // in the index of that author
+      if (found == 0) {
+        char *n = malloc(MAX_FIELD_LENGTH * sizeof(*n));
+        allWorks[authorIndex] = n;
+      }
+      strcat(allWorks[authorIndex], currentTitle);
+      strcat(allWorks[authorIndex], "(");
+      strcat(allWorks[authorIndex], currentID);
+      strcat(allWorks[authorIndex], "), ");
+    }
+
+    // Reset needed variables
+    currentAuthorsLength = 0;
+    startedWritingCurrentAuthor = 0;
   }
 %}
 
@@ -111,60 +127,26 @@
 
 %%
 ^@string\{                               { /* Ignore @string */ }
-^@.+\{                                   { printf("Found category: %s\n", yytext); BEGIN ID; }
-<ID>[^,]+                                { printf("Found ID: %s\n", yytext); BEGIN INITIAL; }
-^[ ]*author[ ]*=[ ][{"]*                 { printf("Found author: "); BEGIN AUTHOR; }
+^@.+\{                                   { storeData(); BEGIN ID; }
+<ID>[^,]+                                { storeID(yytext); BEGIN INITIAL; }
+^[ ]*author[ ]*=[ ]*[{"]*                BEGIN AUTHOR;
 ^[ ]*title[ ]*=[ ]*                      BEGIN TITLE;
-<AUTHOR>[^{]                             { printf("%s", yytext); }
-<AUTHOR>\{                               { printf("{"); BEGIN AUTHOR_BRACKET; }
-<AUTHOR_BRACKET>[^}]                     { printf("%s", yytext); }
-<AUTHOR_BRACKET>\}                       { printf("}"); BEGIN AUTHOR; }
-<AUTHOR>[}"],                            { printf("\n"); BEGIN INITIAL; }
-<TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]     { printf("Found title: %s\n", yytext); BEGIN INITIAL; }
+<AUTHOR>\{                               { oneCharOfAuthor("{"); BEGIN AUTHOR_BRACKET; }
+<AUTHOR>[ ]and[ ]                        { anotherAuthor(); }
+<AUTHOR>[^{]                             { oneCharOfAuthor(yytext); }
+<AUTHOR_BRACKET>[^}]                     { oneCharOfAuthor(yytext); }
+<AUTHOR_BRACKET>\}                       { oneCharOfAuthor("}"); BEGIN AUTHOR; }
+<AUTHOR>[}"],                            BEGIN INITIAL;
+<TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]     { storeTitle(yytext); BEGIN INITIAL; }
 .|\n                                     { /* Ignore all other characters. */ }
 %%
 
 int main() {
   yylex();
-  /*
-  printf("<!DOCTYPE html>\n");
-  printf("<html>\n");
-  printf("<head>\n");
-  printf("<title>The best page in the world</title>\n");
-  printf("<meta charset=\"utf-8\"/>\n");
-  printf("</head>\n");
-  printf("<body style=\"margin: 50px\">\n");
-  printf("<h1>Category Counter</h1>\n");
-  printf("<table>\n");
 
-  // Print categories and counters
-  int i;
-  for(i = 0; i < NUM_OF_CATEGORIES; i++) {
-    printf("<tr>\n");
-    printf("<td>%s</td>\n", categories[i]);
-    printf("<td>%d</td>\n", counters[i]);
-    printf("</tr>\n");
-  }
-  printf("</table>");
-
-  // Print IDs, titles, and authors
-  printf("<br>\n");
-  printf("<br>\n");
-  printf("<table>\n");
-  printf("<td>ID</td>\n");
-  printf("<td>Title</td>\n");
-  printf("<td>Author</td>\n");
   int j;
-  for(j = 0; j <= entryCounter; j++) {
-    printf("<tr>\n");
-    printf("<td>%s</td>\n", ids[j]);
-    printf("<td>%s</td>\n", titles[j]);
-    printf("<td>%s</td>\n", authors[j]);
-    printf("</tr>\n");
+  for(j = 0; j <= allAuthorsLength; j++) {
+    printf("%s: ", allAuthors[j]);
+    printf("%s\n", allWorks[j]);
   }
-
-  printf("</table>");
-  printf("</body>\n");
-  printf("</html>\n");
-  */
 }
