@@ -63,6 +63,8 @@ gcc -o e1p1 lex.yy.c -lfl
 
 Notas para esta alínea: isto é estúpido, estamos a fazer manipulação de strings em C basicamente, a fazer cenas malucas com FLex que não são para o que a ferramenta foi inventada. Será que estou a fazer isto mal?? I don't think so!!!
 
+Depois desta pequena nota: Para esta alínea vamos introduzir estados! O estado é guardado na variável entryCounter, que nos diz a entry to bibtex em que nos encontramos à medida que percorremos o ficheiro.
+
 ### Expressões Regulares
 
 #### 1\. **`^@.+\{`**
