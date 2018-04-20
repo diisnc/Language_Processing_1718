@@ -77,14 +77,14 @@
 %x ID AUTHOR TITLE
 
 %%
-^@string\{                                     { /* Ignore @string */ }
-^@.+\{                                         { onCategoryDetection(yytext); BEGIN ID; }
-<ID>[^,]+                                      { onIDDetection(yytext); BEGIN INITIAL; }
-^[ ]*author[ ]*=[ ]*                           BEGIN AUTHOR;
-^[ ]*title[ ]*=[ ]*                            BEGIN TITLE;
-<AUTHOR>[\{"](\{[^{}"]*\}|[^{}"]|\n|\r)*[\}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }
-<TITLE>[\{"](\{[^{}"]*\}|[^{}"]|\n|\r)*[\}"]   { onTitleDetection(yytext); BEGIN INITIAL; }
-.|\n                                           { /* Ignore all other characters. */ }
+^@string\{                               { /* Ignore @string */ }
+^@.+\{                                   { onCategoryDetection(yytext); BEGIN ID; }
+<ID>[^,]+                                { onIDDetection(yytext); BEGIN INITIAL; }
+^[ ]*author[ ]*=[ ]*                     BEGIN AUTHOR;
+^[ ]*title[ ]*=[ ]*                      BEGIN TITLE;
+<AUTHOR>[\{"](\{[^{}"]*\}|[^{}"])*[\}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }
+<TITLE>[\{"](\{[^{}"]*\}|[^{}"])*[\}"]   { onTitleDetection(yytext); BEGIN INITIAL; }
+.|\n                                     { /* Ignore all other characters. */ }
 %%
 
 int main() {
