@@ -114,8 +114,10 @@ Esta expressão é a mais complicada do ficheiro.
 Dentro do contexto AUTHOR, queremos capturar o valor do campo, que pode ser delimitado por chavetas ({}) ou aspas (""),
 e que pelo meio pode ter "newlines" e mais um nível de profundidade de chavetas ({}), desde que sejam fechadas.
 
-`[\{"]  (  \{[^{}"]*\}  |  [^{}"]  )*  [\}"]`
-`  1           2             3           1  `
+```text
+[\{"]  (  \{[^{}"]*\}  |  [^{}"]  )*  [\}"]
+  1           2             3           1
+```
 
 1. Indica que o campo pode ser delimitado por chavetas ou aspas
 2. Indica que o campo pode conter chavetas fechadas com qualquer coisa lá dentro que não seja chavetas ou aspas. Provavelmente também não devem haver "newlines" dentro destas chavetas, mas isso não entra em conflito com os nossos objetivos, e o nosso trabalho não é validar o ficheiro.
