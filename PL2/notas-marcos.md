@@ -10,7 +10,7 @@ um dos casos, realizar a seguinte lista de tarefas:
 4. Desenvolver um Filtro de Texto para fazer o reconhecimento dos padrões identificados e proceder à transformação
    pretendida, com recurso ao Gerador FLex.
 
-## a) Analisar e fazer contagem de categorias
+## a) Analisar e fazer contagem de categorias.
 
 Eu cheira-me que o professor nesta alínea queria que nós metessemos uma expressão regular para cada categoria, e que incrementássemos o contador de cada uma ao haver match. Só que aí íamos ter de repetir as categorias para as expressões regulares e para os contadores, e possivelmente mais uma vez para saber quais são dentro do código C, para imprimir no HTML.
 
@@ -33,8 +33,6 @@ Ao encontrar um match para esta expressão regular, queremos pegar no que está 
 #### 2\. **`.|\n`**
 
 Captura todos os caracteres que não foram capturados pela expressão regular anterior.
-
-Esta expressão regular captura qualquer sequência de caracteres (exceto nova linha) entre um arroba no início da linha e uma chaveta.
 
 ##### Ações Semânticas
 
@@ -60,3 +58,50 @@ gcc -o e1p1 lex.yy.c -lfl
 `< exemplo-utf8.bib` troca o stdin pelo ficheiro `.bib`.
 
 `> result.html` envia o stdout para a criação do ficheiro result.html.
+
+## b) Filtrar a chave (1a palavra a seguir à chaveta), autores e título.
+
+Notas para esta alínea: isto é estúpido, estamos a fazer manipulação de strings em C basicamente, a fazer cenas malucas com FLex que não são para o que a ferramenta foi inventada. Será que estou a fazer isto mal?? I don't think so!!!
+
+### Expressões Regulares
+
+#### 1\. **`^@(.*)\{`**
+
+Um arroba no início da linha especifica a categoria da referência,
+que termina numa chaveta.
+
+Esta expressão regular captura qualquer sequência de caracteres (exceto nova linha) entre um arroba no início da linha e uma chaveta.
+
+##### Ações Semânticas
+
+Ao encontrar um match para esta expressão regular, queremos pegar no que está entre o arroba e a chaveta, verificar se é uma das categorias de que estamos à procura, e se sim, aumentar o contador dessa categoria.
+
+#### 2\. **`.|\n`**
+
+Captura todos os caracteres que não foram capturados.
+
+##### Ações Semânticas
+
+Queremos prevenir o `ECHO` por defeito de cada um destes caracteres, para não poluir o output.
+
+### Estruturas de Dados Globais
+
+* array de strings (char pointers) categories[]
+* array de ints counters[]
+
+### Filtro de Texto
+
+Ficheiro `e1p1.l`.
+
+### Como Correr
+
+```text
+flex e1p1.l
+gcc -o e1p1 lex.yy.c -lfl
+./e1p1 < exemplo-utf8.bib > result.html
+```
+
+`< exemplo-utf8.bib` troca o stdin pelo ficheiro `.bib`.
+
+`> result.html` envia o stdout para a criação do ficheiro result.html.
+
