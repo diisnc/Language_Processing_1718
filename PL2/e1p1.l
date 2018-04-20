@@ -1,33 +1,36 @@
 %{
   #include <ctype.h> // For tolower()
+  #include <string.h> // For strcpy()
+
   #define NUM_OF_CATEGORIES 13 // Update this if you change categories[]
+  #define MAX_ENTRIES 1024 // Update this if you need more bibtex entries (We could use a dynamic array)
+  #define MAX_FIELD_LENGTH 1024 // Update this if bibtex fields can be bigger (We could use a better strcpy)
+
+  // Data structures for counting category occurences
   const char* categories[] = {"article", "book", "booklet", "inbook", "incollection", "inproceedings", "manual", "mastersthesis", "misc", "phdthesis", "proceedings", "techreport", "unpublished"};
   int counters[NUM_OF_CATEGORIES];
 
-  void onCategoryDetection(char* category) {
+  void trimStringEnds(char* string, char* empty) {
+    char* copy = string;
+    copy++; // Trim first character
+    strcpy(empty, copy);
+    empty[strlen(empty) - 1] = '\0'; // Last string character becomes \0
+  }
 
-    // Ignore "@" at start of category
-    char* c = &category[1];
+  void onCategoryDetection(char* line) {
 
-    // Copy string address for looping
-    char* c1 = c;
-    char* c2 = c;
+    char* category = malloc(MAX_FIELD_LENGTH * sizeof(*category));
+    trimStringEnds(line, category);
 
-    // Trim string on "{"
-    for ( ; *c1; ++c1) {
-      if (*c1 == '{') {
-        *c1 = '\0';
-      }
-    }
-
-    // Category to lowercase one-liner
+    // Category to lowercase
+    char* c2 = category;
     for ( ; *c2; ++c2) *c2 = tolower(*c2);
 
     // Loop over categories, and if there is a match,
     // increase the respective counter
     int i;
     for (i = 0; i < NUM_OF_CATEGORIES; i++) {
-      if (strcmp(c, categories[i]) == 0) {
+      if (strcmp(category, categories[i]) == 0) {
         counters[i]++;
         break;
       }
@@ -36,8 +39,9 @@
 %}
 
 %%
-^@(.*)\{   {onCategoryDetection(yytext);}
-.|\n       { /* Ignore all other characters. */ }
+^@string\{  { /* Ignore @string */ }
+^@.+\{      { onCategoryDetection(yytext); }
+.|\n        { /* Ignore all other characters. */ }
 %%
 
 int main() {
