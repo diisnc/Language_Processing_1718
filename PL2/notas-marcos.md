@@ -12,6 +12,11 @@ um dos casos, realizar a seguinte lista de tarefas:
 
 ## a) Analisar e fazer contagem de categorias
 
+Eu cheira-me que o professor nesta alínea queria que nós metessemos uma expressão regular para cada categoria, e que incrementássemos o contador de cada uma ao haver match. Só que aí íamos ter de repetir as categorias para as expressões regulares e para os contadores, e possivelmente mais uma vez para saber quais são dentro do código C, para imprimir no HTML.
+
+Por causa disso, afinal acho que se calhar não queria nada dessa maneira.
+Mesmo que quisesse, sabemos explicar que fizemos assim porque é mais simples e só se escreve as categorias uma vez no ficheiro, no array categories.
+
 ### Expressões Regulares
 
 #### 1\. **`^@(.*)\{`**
