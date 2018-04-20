@@ -21,14 +21,20 @@
   // because other functions run after it that depend on the counter
   int entryCounter = -1;
 
+  void trimStringEnds(char* string, char* empty) {
+    char* copy = string;
+    copy++; // Trim first character
+    strcpy(empty, copy);
+    empty[strlen(empty) - 1] = '\0'; // Last string character becomes \0
+  }
+
   void onCategoryDetection(char* line) {
 
-    // Copy line parameter
     char* category = malloc(MAX_FIELD_LENGTH * sizeof(*category));
-    getFieldContent(line, category, '@', '{');
+    trimStringEnds(line, category);
 
     // Category to lowercase
-    char* c2 = c;
+    char* c2 = category;
     for ( ; *c2; ++c2) *c2 = tolower(*c2);
 
     // Loop over categories, and if there is a match,
@@ -36,81 +42,56 @@
     int matched = 0;
     int i;
     for (i = 0; i < NUM_OF_CATEGORIES; i++) {
-      if (strcmp(c, categories[i]) == 0) {
+      if (strcmp(category, categories[i]) == 0) {
         counters[i]++;
         matched = 1;
         break;
       }
     }
-    if (matched == 0) {
-      // There was no match, don't try to get ID
-      return;
+    if (matched == 1) {
+      // Increment counter, because there was a match!
+      // We'll be storing an entry.
+      entryCounter++;
     }
 
-    // Increment counter, because there was a match!
-    // We'll be storing an entry.
-    entryCounter++;
+    printf("%d - Got a category: %s<br>\n", entryCounter, category);
+  }
 
-    // Get ID starting after "{"
-    char* id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
-    getFieldContent(line, id, '{', ',');
-
-    // Add ID to ids array
+  void onIDDetection(char* line) {
+    char *id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
+    strcpy(id, line);
     ids[entryCounter] = id;
 
-    printf("%d - Got a category: %s<br>\n", entryCounter, c);
     printf("%d - ID: %s<br>\n", entryCounter, id);
-  }
-
-
-  void getFieldContent(char* line, char* empty, char leftDelimiter, char rightDelimiter) {
-
-    // Make string start after leftDelimiter
-    char* field = line;
-    for ( ; *field; ++field) {
-      if (*field == leftDelimiter) {
-        field++;
-        break;
-      }
-    }
-
-    // Trim string on rightDelimiter
-    char* f = field;
-    for ( ; *f; ++f) {
-      if (*f == rightDelimiter) {
-        *f = '\0';
-      }
-    }
-
-    // Write the string for the caller
-    strcpy(empty, field);
-  }
-
-  void onAuthorDetection(char* line) {
-    char *author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
-    getFieldContent(line, author);
-    authors[entryCounter] = author;
-
-    printf("%d - Author: %s<br>\n", entryCounter, author);
   }
 
   void onTitleDetection(char* line) {
     char *title = malloc(MAX_FIELD_LENGTH * sizeof(*title));
-    getFieldContent(line, title);
+    trimStringEnds(line, title);
     titles[entryCounter] = title;
 
     printf("%d - Title: %s<br>\n", entryCounter, title);
   }
 
+  void onAuthorDetection(char* line) {
+    char *author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
+    trimStringEnds(line, author);
+    authors[entryCounter] = author;
+
+    printf("%d - Author: %s<br>\n", entryCounter, author);
+  }
 %}
 
+%x ID AUTHOR TITLE
+
 %%
-^@.+\{                                         {onCategoryDetection(yytext); BEGIN ID;}
-<ID>[^,]+                                      {onIDDetection(yytext); BEGIN INITIAL;}
+^@string\{                                     { /* Ignore @string */ }
+^@.+\{                                         { onCategoryDetection(yytext); BEGIN ID; }
+<ID>[^,]+                                      { onIDDetection(yytext); BEGIN INITIAL; }
 ^[ ]*author[ ]*=[ ]*                           BEGIN AUTHOR;
 ^[ ]*title[ ]*=[ ]*                            BEGIN TITLE;
-<AUTHOR>[\{"](\{[^{}"]*\}|[^{}"]|\n|\r)*[\}"]  {onAuthorDetection(yytext); BEGIN INITIAL;}
-<TITLE>[\{"](\{[^{}"]*\}|[^{}"]|\n|\r)*[\}"]   {onTitleDetection(yytext);}
+<AUTHOR>[\{"](\{[^{}"]*\}|[^{}"]|\n|\r)*[\}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }
+<TITLE>[\{"](\{[^{}"]*\}|[^{}"]|\n|\r)*[\}"]   { onTitleDetection(yytext); BEGIN INITIAL; }
 .|\n                                           { /* Ignore all other characters. */ }
 %%
 
