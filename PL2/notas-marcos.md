@@ -19,7 +19,7 @@ Mesmo que quisesse, sabemos explicar que fizemos assim porque é mais simples e 
 
 ### Expressões Regulares
 
-#### 1\. **`^@(.*)\{`**
+#### 1\. **`^@.+\{`**
 
 Um arroba no início da linha especifica a categoria da referência,
 que termina numa chaveta.
@@ -65,7 +65,7 @@ Notas para esta alínea: isto é estúpido, estamos a fazer manipulação de str
 
 ### Expressões Regulares
 
-#### 1\. **`^@(.*)\{`**
+#### 1\. **`^@.+\{`**
 
 Um arroba no início da linha especifica a categoria da referência,
 que termina numa chaveta.
