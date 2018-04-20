@@ -2,11 +2,9 @@
   #include <ctype.h> // For tolower()
   #include <string.h> // For strcpy()
 
-  #define NUM_OF_CATEGORIES 13 // Update this if you change categories[]
   #define MAX_ENTRIES 1024 // Update this if you need more bibtex entries (We could use a dynamic array)
   #define MAX_AUTHORS 64 // Update this if you need to allow more authors per entry
-  #define MAX_FIELD_LENGTH 1024 // Update this if bibtex fields can be bigger (We could use a better strcpy)
-  #define MAX_SUBSTRINGS 64 // Number of substrings to support on splitStringOnString
+  #define MAX_FIELD_LENGTH 5000 // Update this if bibtex fields can be bigger (We could use a better strcpy)
 
   // Globals
   char* currentTitle;
@@ -35,33 +33,30 @@
     char *title = malloc(MAX_FIELD_LENGTH * sizeof(*title));
     trimStringEnds(line, title);
     currentTitle = title;
+
+    printf("Stored title\n");
   }
 
   void storeID(char* line) {
     char *id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
     trimStringEnds(line, id);
-    currentTitle = id;
+    currentID = id;
   }
 
   void oneCharOfAuthor(char* str) {
-    // printf("another char of author.\nchar: %s\nprevious: %s\n", str, currentAuthors[currentAuthorsLength]);
 
     if (!startedWritingCurrentAuthor) {
-      // printf(" (initizalizing string) ");
       char* author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
       author[0] = 'T';
       currentAuthors[currentAuthorsLength] = author;
       startedWritingCurrentAuthor = 1;
     }
     appendCharToString(currentAuthors[currentAuthorsLength], str[0]);
-    // printf("current: %s\n", currentAuthors[currentAuthorsLength]);
   }
 
   void anotherAuthor() {
     startedWritingCurrentAuthor = 0;
     currentAuthorsLength++;
-
-    // printf("another author. previous: %s\n", currentAuthors[currentAuthorsLength - 1]);
   }
 
   void storeData() {
@@ -91,13 +86,15 @@
 
         // If found, get the index
         if (strcmp(currentAuthors[i], allAuthors[j]) == 0) {
+          printf("Author found: currentAuthors %d:\"%s\" and allAuthors %d:\"%s\"\n", i, currentAuthors[i], j, allAuthors[j]);
           authorIndex = j;
           found = 1;
           break;
         }
       }
       // If not found, append and index = allAuthorsLength
-      if (found = 0) {
+      if (found == 0) {
+        printf("Author not found\n");
         char *s = malloc(MAX_FIELD_LENGTH * sizeof(*s));
         strcpy(s, currentAuthors[i]);
         allAuthors[allAuthorsLength] = s;
@@ -105,16 +102,23 @@
         allAuthorsLength++;
       }
 
+      printf("author index: %d\n", authorIndex);
+      printf("author name: %s\n", allAuthors[authorIndex]);
+
       // Add ID and Title string to the string in allWorks
       // in the index of that author
       if (found == 0) {
-        char *n = malloc(MAX_FIELD_LENGTH * sizeof(*n));
+        printf("Initializing allWorks[%d]\n", authorIndex);
+        char* n = malloc(MAX_FIELD_LENGTH * sizeof(*n));
         allWorks[authorIndex] = n;
       }
+
       strcat(allWorks[authorIndex], currentTitle);
-      strcat(allWorks[authorIndex], "(");
+      strcat(allWorks[authorIndex], " (");
       strcat(allWorks[authorIndex], currentID);
       strcat(allWorks[authorIndex], "), ");
+
+      printf("works now is: %s\n", allWorks[authorIndex]);
     }
 
     // Reset needed variables
