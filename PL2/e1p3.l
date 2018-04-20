@@ -33,13 +33,12 @@
     char *title = malloc(MAX_FIELD_LENGTH * sizeof(*title));
     trimStringEnds(line, title);
     currentTitle = title;
-
-    printf("Stored title\n");
   }
 
   void storeID(char* line) {
+    // Unlike title, ID doesn't have to be trimmed
     char *id = malloc(MAX_FIELD_LENGTH * sizeof(*id));
-    trimStringEnds(line, id);
+    strcpy(id, line);
     currentID = id;
   }
 
@@ -47,7 +46,6 @@
 
     if (!startedWritingCurrentAuthor) {
       char* author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
-      author[0] = 'T';
       currentAuthors[currentAuthorsLength] = author;
       startedWritingCurrentAuthor = 1;
     }
@@ -67,16 +65,12 @@
       return;
     }
 
-    printf("storeData\n");
-
     // Stopped writing an author, increment
     currentAuthorsLength++;
 
     // For each current author
     int i;
     for (i = 0; i < currentAuthorsLength; i++) {
-
-      printf("author: %s\n", currentAuthors[i]);
 
       // Find author in all authors array
       int found = 0;
@@ -86,7 +80,6 @@
 
         // If found, get the index
         if (strcmp(currentAuthors[i], allAuthors[j]) == 0) {
-          printf("Author found: currentAuthors %d:\"%s\" and allAuthors %d:\"%s\"\n", i, currentAuthors[i], j, allAuthors[j]);
           authorIndex = j;
           found = 1;
           break;
@@ -94,7 +87,6 @@
       }
       // If not found, append and index = allAuthorsLength
       if (found == 0) {
-        printf("Author not found\n");
         char *s = malloc(MAX_FIELD_LENGTH * sizeof(*s));
         strcpy(s, currentAuthors[i]);
         allAuthors[allAuthorsLength] = s;
@@ -102,13 +94,9 @@
         allAuthorsLength++;
       }
 
-      printf("author index: %d\n", authorIndex);
-      printf("author name: %s\n", allAuthors[authorIndex]);
-
       // Add ID and Title string to the string in allWorks
       // in the index of that author
       if (found == 0) {
-        printf("Initializing allWorks[%d]\n", authorIndex);
         char* n = malloc(MAX_FIELD_LENGTH * sizeof(*n));
         allWorks[authorIndex] = n;
       }
@@ -117,8 +105,6 @@
       strcat(allWorks[authorIndex], " (");
       strcat(allWorks[authorIndex], currentID);
       strcat(allWorks[authorIndex], "), ");
-
-      printf("works now is: %s\n", allWorks[authorIndex]);
     }
 
     // Reset needed variables
@@ -147,6 +133,14 @@
 
 int main() {
   yylex();
+
+  // One last storeData();
+  storeData();
+
+  // allAuthorsLength is actually allAuthorsMaxIndex, fix that!
+  allAuthorsLength--;
+
+  printf("Authors and Works\n");
 
   int j;
   for(j = 0; j <= allAuthorsLength; j++) {
