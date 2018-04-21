@@ -175,6 +175,63 @@ Igual ao `e1p1.l`.
 
 ## c) Criar um indíce de autores e as entradas em que aparecem, em plain text para ser "procurável" em linux.
 
+### Expressões Regulares
+
+#### `^@string\{                               { /* Ignore @string */ }`
+
+Já usada na alínea B. Queremos ignorar linhas que começam em `@string{` para não entrar no
+processo de captura de uma nova entrada.
+
+#### `^@.+\{                                   { storeData(); BEGIN ID; }`
+
+Já usada também!
+
+#### `<ID>[^,]+                                { storeID(yytext); BEGIN INITIAL; }`
+
+Já usada.
+
+#### `^[ ]*(author|AUTHOR)[ ]*=[ ]*[{"]*       BEGIN AUTHOR;`
+
+Já usada.
+
+#### `^[ ]*(title|TITLE)[ ]*=[ ]*              BEGIN TITLE;`
+
+Já usada.
+
+#### Contexto AUTHOR
+
+Enquanto que anteriormente Simplesmente apanhávamos o campo `author` inteiro com uma expressão regular,
+agora queremos apanhar os autores um a um, pelo que precisamos de entrar num contexto especial.
+
+O campo `author` pode conter mais do que um autor, sendo estes separados pela palavra "and".
+
+##### `<AUTHOR>\{                               { oneCharOfAuthor("{"); BEGIN AUTHOR_BRACKET; }`
+
+Enquanto estamos a apanhar um campo `author`, se encontrarmos uma chaveta, entramos no contexto `AUTHOR_BRACKET`.
+O contexto `AUTHOR_BRACKET` é necessário porque se continuássemos dentro do contexto `AUTHOR`, daríamos o campo por
+terminado quando encontrássemos a respetiva chaveta a fechar (}), o que faria com que o programa deixasse de funcionar
+corretamente.
+
+##### `<AUTHOR>[^{\n\r]                           { oneCharOfAuthor(yytext); }`
+
+Enquanto estamos a apanhar um campo `author`, capturamos todos os caracteres que façam parte do nome (todos menos abre chaveta
+e nova linha, sendo incluído também o `\r` para ser compatível com os newlines do ambiente linux).
+
+*Ação semântica*: Adicionar o caractere atual à string que contém o nome do autor que estamos a guardar.
+
+##### `<AUTHOR>[}"],                            BEGIN INITIAL;`
+
+Enquanto estamos a apanhar um campo `author`, se encontrarmos uma "fechação" de chaveta ou uma aspa, damos como terminado o campo
+e voltamos ao contexto inicial.
+
+##### `<AUTHOR>[ \n\r]+and[ \n\r]+                  { anotherAuthor(); }`
+
+Quando estamos a apanhar um campo `author`, queremos detectar a palavra "and" rodeada de espaços ou newlines, que significa que
+de seguida vai aparecer o nome de um outro autor que faz parte da mesma obra.
+
+*Ação semântica*: Guardar o autor anterior, e preparar o array de autores da obra atual com uma string vazia para começar a receber
+o nome do próximo.
+
 O "and" que separa os autores pode estar rodeado de espaços ou newlines. Inicialmente só planeamos para espaços,
 e entradas como a seguinte faziam o programa escachar:
 
@@ -187,18 +244,84 @@ author = {Diana Santos and Alberto Sim�es and Ana Frankenberg-Garcia and
    Susana Afonso},
 ```
 
+##### `<AUTHOR>\n                               { /* Ignore newlines in the middle of author names */ }`
+
+Esta expressão ignora newlines no meio de nomes de autores, para que não apareçam nomes duplicados com newlines no meio.
+
+##### `<AUTHOR_BRACKET>[^}]                     { oneCharOfAuthor(yytext); }`
+
+Dentro do contexto `AUTHOR_BRACKET`, todos os caracteres menos chaveta a fechar (}) são
+adicionados ao nome do autor.
+Assumimos que os conteúdos de um bracket num campo autor não podem conter newlines.
+
+##### `<AUTHOR_BRACKET>\}                       { oneCharOfAuthor("}"); BEGIN AUTHOR; }`
+
+Dentro do contexto `AUTHOR_BRACKET`, uma chaveta a fechar significa que voltamos ao contexto `AUTHOR`.
+
+#### `<TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]     { storeTitle(yytext); BEGIN INITIAL; }`
+
+Já usada, apanha o campo título.
+
+#### `.|\n                                     { /* Ignore all other characters. */ }`
+
+Já usada, ignora todos os outros caracteres não apanhados.
+
 ### Estruturas de Dados Globais
+
+De uma maneira simples, este programa passa pelas entradas uma a uma,
+e vai guardando a informação dos autores, título, e ID à medida que os atravessa.
+
+Ao chegar uma nova entrada, esta informação é toda guardada, e é dado reset
+às variáveis que guardam os valores da entrada atual.
+
+`char* currentTitle;`
+
+Guarda o título da entrada atual.
+
+`char* currentID;`
+
+Guarda a ID da entrada atual.
+
+`char* currentAuthors[MAX_AUTHORS];`
+
+Guarda a lista dos autores da entrada atual.
+
+`int currentAuthorsLength = 0;`
+
+Guarda o tamanho da lista dos autores da entrada atual.
+
+`int startedWritingCurrentAuthor = 0;`
+
+Uma flag que indica se já começamos a guardar os caracteres do autor atual.
+Se a flag se encontra a zero, sabemos que temos de alocar espaço para uma
+nova string que será colocada no array de autores.
+
+`char* allAuthors[MAX_AUTHORS];`
+
+Guarda os nomes de todos os autores encontrados. Juntamente com o array
+`allWorks`, guarda os resultados que pretendemos obter.
+
+`int allAuthorsLength = 0;`
+
+Guarda o tamanho do array allAuthors.
+
+`char* allWorks[MAX_AUTHORS];`
+
+Guarda os trabalhos de cada autor em allAuthors no índice respetivo,
+no formato "título por extenso (ID), outro título (outra ID), etc."
 
 ### Filtro de Texto
 
-### Como Correr
+Ficheiro `e1p3.l`.
 
 ### Como Correr
+
+Igual ao `e1p1.l`, só que a output é em `.txt` em vez de `.html`.
 
 ```text
-flex e1p1.l
-gcc -o e1p1 lex.yy.c -lfl
-./e1p1 < exemplo-utf8.bib > result.txt
+flex e1p3.l
+gcc -o e1p3 lex.yy.c -lfl
+./e1p3 < exemplo-utf8.bib > result.txt
 ```
 
 `< exemplo-utf8.bib` troca o stdin pelo ficheiro `.bib`.
