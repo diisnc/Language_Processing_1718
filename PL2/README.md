@@ -53,7 +53,7 @@ gcc -o e1p1 lex.yy.c -lfl
 
 `< exemplo-utf8.bib` troca o stdin pelo ficheiro `.bib`.
 
-`> result.html` envia o stdout para a criação do ficheiro result.html.
+`> result.html` envia o stdout para a criação do ficheiro `result.html`.
 
 ## b) Filtrar a chave (1a palavra a seguir à chaveta), autores e título.
 
@@ -89,8 +89,8 @@ Esta expressão regular captura qualquer sequência de caracteres (exceto nova l
 
 ##### Ações Semânticas
 
-Ao encontrar um match para esta expressão regular, queremos pegar no que está entre o arroba e a chaveta (fazer trim de yytext, que foi o texto
-capturado), verificar se é uma das categorias de que estamos à procura, e se sim, aumentar o contador dessa categoria.
+Ao encontrar um match para esta expressão regular, queremos pegar no que está entre o arroba e a chaveta (aparar o primeiro e último caractere
+de yytext, que foi o texto capturado), verificar se é uma das categorias de que estamos à procura, e se sim, aumentar o contador dessa categoria.
 
 Para além disso, e em acréscimo ao que foi feito na alínea A, queremos entrar no contexto ID, que deve capturar a ID da entrada que acabamos de
 detetar.
@@ -103,22 +103,24 @@ Esta expressão captura qualquer sequência de caracteres até uma vírgula, den
 
 Queremos capturar a ID da entrada por que estamos a passar. No final, queremos voltar ao contexto inicial.
 
-#### 3. `^[ ]*author[ ]*=[ ]*                           BEGIN AUTHOR;`
+#### 3. `^[ ]*(author|AUTHOR)[ ]*=[ ]*                           BEGIN AUTHOR;`
 
-Esta expressão captura qualquer linha começada por um número arbitrário de espaços, seguida de "author" e um "=",
-com um número também arbitrário de espaços antes e depois do igual.
+Esta expressão captura qualquer linha começada por um número arbitrário de espaços, seguida de "author" em upper ou lower case
+ e um "=", com um número também arbitrário de espaços antes e depois do igual.
+É necessário lidar com author em upper ou lower case porque há uma entrada no ficheiro `exemplo-utf8.bib` (só uma) que tem
+estes campos em maiúsculas.
 
 ##### Ações Semânticas
 
 Queremos detetar o campo `author` e entrar no contexto que o captura.
 
-#### 4. `^[ ]*title[ ]*=[ ]*                            BEGIN TITLE;`
+#### 4. `^[ ]*(title|TITLE)[ ]*=[ ]*                            BEGIN TITLE;`
 
 Esta expressão faz o mesmo que a anterior, mas em vez de capturar o autor, captura o título.
 
 ##### Ações Semânticas
 
-Mais uma vez, queremos detetar o campoe entrar no contexto que o captura.
+Mais uma vez, queremos detetar o campo e entrar no contexto que o captura.
 
 #### 5. `<AUTHOR>[{"](\{[^{}"]*\}|[^{}"])*[}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }`
 
@@ -135,7 +137,7 @@ e que pelo meio pode ter "newlines" e mais um nível de profundidade de chavetas
 1. Indica que o campo pode ser delimitado por chavetas ou aspas.
 2. Indica que o campo pode conter chavetas fechadas com qualquer coisa lá dentro que não seja chavetas ou aspas. Provavelmente também não devem haver "newlines" dentro destas chavetas, mas isso não entra em conflito com os nossos objetivos, e o nosso trabalho não é validar o ficheiro.
 3. Indica que o campo pode conter quaisquer caracteres que não chavetas ou aspas, incluindo "newlines".
-4. Indica que 2. e 3. podem ser repetidos 0 ou mais vezes.
+4. Indica que 2. ou 3. podem ser repetidos 0 ou mais vezes.
 
 ##### Ações Semânticas
 
@@ -170,3 +172,35 @@ Ficheiro `e1p2.l`.
 ### Como Correr
 
 Igual ao `e1p1.l`.
+
+## c) Criar um indíce de autores e as entradas em que aparecem, em plain text para ser "procurável" em linux.
+
+O "and" que separa os autores pode estar rodeado de espaços ou newlines. Inicialmente só planeamos para espaços,
+e entradas como a seguinte faziam o programa escachar:
+
+```text
+author = {Diana Santos and Alberto Sim�es and Ana Frankenberg-Garcia and
+   Ana Pinto and Anabela Barreiro and Belinda Maia and Cristina Mota and D�bora
+   Oliveira and Eckhard Bick and Elisabete Ranchhod and J.J. Almeida
+   and Lu�s Cabral and Lu�s Costa and Lu�s Sarmento and Marcirio Chaves and Nuno
+   Cardoso and Paulo Rocha and Rachel Aires and Ros�rio Silva and Rui Vilela and
+   Susana Afonso},
+```
+
+### Estruturas de Dados Globais
+
+### Filtro de Texto
+
+### Como Correr
+
+### Como Correr
+
+```text
+flex e1p1.l
+gcc -o e1p1 lex.yy.c -lfl
+./e1p1 < exemplo-utf8.bib > result.txt
+```
+
+`< exemplo-utf8.bib` troca o stdin pelo ficheiro `.bib`.
+
+`> result.txt` envia o stdout para a criação do ficheiro `result.txt`.
