@@ -39,7 +39,6 @@
 %}
 
 %%
-^@string\{  { /* Ignore @string */ }
 ^@.+\{      { onCategoryDetection(yytext); }
 .|\n        { /* Ignore all other characters. */ }
 %%
