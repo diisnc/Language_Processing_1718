@@ -2,9 +2,9 @@
   #include <ctype.h> // For tolower()
   #include <string.h> // For strcpy()
 
-  #define MAX_ENTRIES 1024 // Update this if you need more bibtex entries (We could use a dynamic array)
-  #define MAX_AUTHORS 64 // Update this if you need to allow more authors per entry
-  #define MAX_FIELD_LENGTH 5000 // Update this if bibtex fields can be bigger (We could use a better strcpy)
+  #define MAX_ENTRIES 10000 // Update this if you need more bibtex entries (We could use a dynamic array)
+  #define MAX_AUTHORS 10000 // Update this if you need to allow more authors in total
+  #define MAX_FIELD_LENGTH 2048 // Update this if bibtex fields can be bigger (We could use a better strcpy)
 
   // Globals
   char* currentTitle;
@@ -119,14 +119,15 @@
 ^@string\{                               { /* Ignore @string */ }
 ^@.+\{                                   { storeData(); BEGIN ID; }
 <ID>[^,]+                                { storeID(yytext); BEGIN INITIAL; }
-^[ ]*author[ ]*=[ ]*[{"]*                BEGIN AUTHOR;
-^[ ]*title[ ]*=[ ]*                      BEGIN TITLE;
+^[ ]*(author|AUTHOR)[ ]*=[ ]*[{"]*       BEGIN AUTHOR;
+^[ ]*(title|TITLE)[ ]*=[ ]*              BEGIN TITLE;
 <AUTHOR>\{                               { oneCharOfAuthor("{"); BEGIN AUTHOR_BRACKET; }
-<AUTHOR>[ ]and[ ]                        { anotherAuthor(); }
-<AUTHOR>[^{]                             { oneCharOfAuthor(yytext); }
+<AUTHOR>[^{\n\r]                           { oneCharOfAuthor(yytext); }
+<AUTHOR>[}"],                            BEGIN INITIAL;
+<AUTHOR>[ \n\r]+and[ \n\r]+                  { anotherAuthor(); }
+<AUTHOR>\n                               { /* Ignore newlines in the middle of author names */ }
 <AUTHOR_BRACKET>[^}]                     { oneCharOfAuthor(yytext); }
 <AUTHOR_BRACKET>\}                       { oneCharOfAuthor("}"); BEGIN AUTHOR; }
-<AUTHOR>[}"],                            BEGIN INITIAL;
 <TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]     { storeTitle(yytext); BEGIN INITIAL; }
 .|\n                                     { /* Ignore all other characters. */ }
 %%
@@ -135,16 +136,19 @@ int main() {
   yylex();
 
   // One last storeData();
+  // (Needed because storeData is called at the start of a new entry,
+  // because we can't rely on a specific field to be the last of an entry)
   storeData();
 
-  // allAuthorsLength is actually allAuthorsMaxIndex, fix that!
+  // allAuthorsLength is actually allAuthorsMaxIndex.
+  // We should fix that in the future!
   allAuthorsLength--;
 
   printf("Authors and Works\n");
 
   int j;
   for(j = 0; j <= allAuthorsLength; j++) {
-    printf("%s: ", allAuthors[j]);
+    printf("\n%s: ", allAuthors[j]);
     printf("%s\n", allWorks[j]);
   }
 }
