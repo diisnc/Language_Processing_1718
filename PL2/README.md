@@ -57,6 +57,19 @@ gcc -o e1p1 lex.yy.c -lfl
 
 ## b) Filtrar a chave (1a palavra a seguir à chaveta), autores e título.
 
+Nesta alínea, depois de terminar, tivemos de fazer o programa ignorar a capitalização dos campos
+das entradas bibtex, por causa de uma entrada (só uma mesmo) que tinha os nomes dos campos em maiúsculas:
+
+```text
+@INPROCEEDINGS{CH2010a,
+  AUTHOR =       {Daniela da Cruz and Pedro Rangel Henriques},
+  TITLE =        {Exploring, Visualizing and Slicing the Soul of XML Documents},
+  BOOKTITLE =    {Proceedings of 25th Symposium On Applied Computing - Document Engineering},
+  YEAR =         {2010},
+  note =         {to be published}
+}
+```
+
 ### Expressões Regulares
 
 #### 1. `^@string\{                                     { /* Ignore @string */ }`

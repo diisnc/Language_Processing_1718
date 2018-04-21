@@ -80,10 +80,10 @@
 ^@string\{                               { /* Ignore @string */ }
 ^@.+\{                                   { onCategoryDetection(yytext); BEGIN ID; }
 <ID>[^,]+                                { onIDDetection(yytext); BEGIN INITIAL; }
-^[ ]*author[ ]*=[ ]*                     BEGIN AUTHOR;
-^[ ]*title[ ]*=[ ]*                      BEGIN TITLE;
-<AUTHOR>[{"](\{[^{}"]*\}|[^{}"])*[}"]  { onAuthorDetection(yytext); BEGIN INITIAL; }
-<TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]   { onTitleDetection(yytext); BEGIN INITIAL; }
+^[ ]*(author|AUTHOR)[ ]*=[ ]*            BEGIN AUTHOR;
+^[ ]*(title|TITLE)[ ]*=[ ]*              BEGIN TITLE;
+<AUTHOR>[{"](\{[^{}"]*\}|[^{}"])*[}"]    { onAuthorDetection(yytext); BEGIN INITIAL; }
+<TITLE>[{"](\{[^{}"]*\}|[^{}"])*[}"]     { onTitleDetection(yytext); BEGIN INITIAL; }
 .|\n                                     { /* Ignore all other characters. */ }
 %%
 
