@@ -79,7 +79,7 @@
 %%
 ^@string\{                               { /* Ignore @string */ }
 ^@.+\{                                   { onCategoryDetection(yytext); BEGIN ID; }
-<ID>[^,]+                                { onIDDetection(yytext); BEGIN INITIAL; }
+<ID>[^,]+                                { onIDDetection(yytext); BEGIN INITIAL; } //brings you to the inicial state
 ^[ ]*(author|AUTHOR)[ ]*=[ ]*            BEGIN AUTHOR;
 ^[ ]*(title|TITLE)[ ]*=[ ]*              BEGIN TITLE;
 <AUTHOR>[{"](\{[^{}"]*\}|[^{}"])*[}"]    { onAuthorDetection(yytext); BEGIN INITIAL; }
