@@ -1,17 +1,20 @@
 %{
   #include <ctype.h> // For tolower()
   #include <string.h> // For strcpy()
+  #include <stdio.h>
 
   #define MAX_AUTHORS 10000 // Update this if you need to allow more authors in total
   #define MAX_FIELD_LENGTH 2048 // Update this if bibtex fields can be bigger (We could use a better strcpy)
 
   // Globals
-  char* authorIN; //string to save the input (desired author)
+  char authorIN[50]; //string to save the input (desired author)
   char* allAuthors[MAX_AUTHORS]; // Data structure for the main author's correlated authors
   char* currentAuthors[MAX_AUTHORS];
-  //int startedWritingCurrentAuthor = 0;
+  int startedWritingCurrentAuthor = 0;
   int currentAuthorsLength = 0;
   int allAuthorsLength = 0;
+
+
 
 
 
@@ -21,12 +24,19 @@
   }
 
   void oneCharOfAuthor(char* str) {
-    char* author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
-    currentAuthors[currentAuthorsLength] = author;
+    
+    if (!startedWritingCurrentAuthor) {
+      char* author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
+      currentAuthors[currentAuthorsLength] = author;
+      startedWritingCurrentAuthor = 1;
+    }
     appendCharToString(currentAuthors[currentAuthorsLength], str[0]);
   }
 
+
+
   void anotherAuthor() {
+    startedWritingCurrentAuthor = 0;
     currentAuthorsLength++;
   }
 
@@ -37,14 +47,18 @@
           lots of arrows -> usefull to check who is the author that correlates more
           with the input author -> write this on work report
   */
-  void checkAuthors(){
+  void checkAuthors() {
       int found = 0;
       int foundFinal = 0;
       int authorIndex = -1;
       int i;
-      
+
+      // Stopped writing authors, increment
+      currentAuthorsLength++;
+
       // Find authorIN in currentAuthors array
       for (i = 0; i < currentAuthorsLength; i++) {
+        
         // If found, get the index
         if (strcmp(currentAuthors[i], authorIN) == 0) {
           authorIndex = i;
@@ -56,24 +70,26 @@
       //if found, add to allAuthors array all the correlated authors (except himself)
       //it is also necessary to check if the correlated author is not already in the
       //allAuthors array (avoiding repeated correlated authors)
-      if(found){
-        for(i = 0; i < currentAuthorsLength; i++){
+      if(found) {
 
+        for(i = 0; i < currentAuthorsLength; i++) {
+          
           //do not add himself
-          if(i != authorIndex){
+          if(i != authorIndex) {
             int j;
             
-            for(j = 0; j < allAuthorsLength; j++){
-
+            for(j = 0; j < allAuthorsLength; j++) {
               if (strcmp(currentAuthors[i], allAuthors[j]) == 0) {
                 foundFinal = 1;
                 break;
               } 
             }
-
+            
             //if correlated author is not in allAuthors array, add to it
-            if(!foundFinal){
-              strcat(allAuthors[currentAuthorsLength], currentAuthors[i]);
+            if(!foundFinal) {
+              char *s = malloc(MAX_FIELD_LENGTH * sizeof(*s));
+              strcpy(s, currentAuthors[i]);
+              allAuthors[allAuthorsLength] = s;
               allAuthorsLength++;
             }
           
@@ -85,40 +101,62 @@
 
   // Reset needed variables
   currentAuthorsLength = 0;
+  startedWritingCurrentAuthor = 0;
   }
 %}
 
-%x AUTHOR 
+%x AUTHOR AUTHOR_BRACKET
 
 %%
-^[ ]*(author|AUTHOR)[ ]*=[ ]*[{"]*       BEGIN AUTHOR;
+^[ ]*(author|AUTHOR)[ ]*=[ ]*[{"]*        BEGIN AUTHOR;
 <AUTHOR>{
-  [^{\n\r]                                { oneCharOfAuthor(yytext); }
+  \{                                      { oneCharOfAuthor("{"); BEGIN AUTHOR_BRACKET; }
+  [^{\n\r]                                { oneCharOfAuthor(yytext); } 
   [ \n\r]+and[ \n\r]+                     { anotherAuthor(); }
   [}"],                                   { checkAuthors(); BEGIN INITIAL; }
-  \n                                      { /* Ignore newlines in the middle of author names */ }
+  .|\n                                    { /* Ignore newlines in the middle of author names */ }
+}                                      
+<AUTHOR_BRACKET>{
+  [^}]                                    { oneCharOfAuthor(yytext); }
+  \}                                      { oneCharOfAuthor("}"); BEGIN AUTHOR; }
 } 
-.|\n                                    { /* Ignore all other characters. */ }                                   
+.|\n                                      { /* Ignore all other characters. */ }                                   
 %%                                    
 
 
-int main() {
-  yylex();
+/*
 
-  // allAuthorsLength is actually allAuthorsMaxIndex.
-  // We should fix that in the future!
-  allAuthorsLength--;
+Example: ./e1p4 < exemplo-utf8.bib > results.txt -author "J.J. Almeida"
 
+argv[0] = ./exec
+argv[1] = -autor
+argv[2] = "<authorIn>"
 
-  printf("Diagraph G {\n");
+*/
+int main(int argc, char** argv) {
+  
+  if(argc >= 3) {
+    strcpy(authorIN, argv[2]);
+    
+    yylex();
 
-  //to print the quotation marks, it is necessary to escape them!
-  int i;
-  for(i = 0; i <= allAuthorsLength; i++){
-    printf("  \"%s\"", authorIN);
-    printf(" -> ");
-    printf("\"%s\"\n", allAuthors[i]);
+    allAuthorsLength--;
+
+    printf("digraph G {\n");
+    printf("  ratio = fill;\n");
+    printf("  node [style=filled];\n");
+
+    //to print the quotation marks, it is necessary to escape them!
+    int i;
+    for(i = 0; i <= allAuthorsLength; i++) {
+      printf("  \"%s\"", authorIN);
+      printf(" -> ");
+      printf("\"%s\"", allAuthors[i]);
+      printf(" [color=\"0.650 0.700 0.700\"];\n");
+    }
+
+    printf("}");
+  } else {
+    fprintf(stderr, "Argumentos insuficientes!\n");
   }
-
-  printf("}");
 }

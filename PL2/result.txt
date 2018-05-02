@@ -1,0 +1,32 @@
+digraph G {
+  ratio = fill;
+  node [style=filled];
+  "J.J. Almeida" -> "F. M�rio Martins" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "P.R. Henriques" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "J.B. Barros" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Ulisses Pinto" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "L.S. Barbosa" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "J.C. Ramalho" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Ricardo Reis" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Barbosa, L.S." [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Neves, F.L." [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Oliveira, J.N." [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "J.G. Rocha" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "M.R. Henriques" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Jorge Rocha" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Ana Silva" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Ricardo Henriques" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Pedro Henriques" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Jorge Gustavo Rocha" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "A. M. Sim�es" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "J. Gustavo Rocha" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "P. Rangel Henriques" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "S�nia Moreira" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Alberto Sim�es" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Paulo A. Rocha" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Alberto M. Sim�es" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Alberto Manuel Sim�es" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Jos� Alves Castro" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Diana Santos" [color="0.650 0.700 0.700"];
+  "J.J. Almeida" -> "Rui Vilela" [color="0.650 0.700 0.700"];
+}
