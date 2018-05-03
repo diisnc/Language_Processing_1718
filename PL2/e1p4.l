@@ -16,21 +16,20 @@
 
 
 
-
-
   void appendCharToString(char* string, char c) {
     string[strlen(string) + 1] = '\0';
     string[strlen(string)] = c;
   }
 
-  void oneCharOfAuthor(char* str) {
-    
+  void oneCharOfAuthor(char* string) {
+
+    char str = tolower(string[0]);
     if (!startedWritingCurrentAuthor) {
       char* author = malloc(MAX_FIELD_LENGTH * sizeof(*author));
       currentAuthors[currentAuthorsLength] = author;
       startedWritingCurrentAuthor = 1;
     }
-    appendCharToString(currentAuthors[currentAuthorsLength], str[0]);
+    appendCharToString(currentAuthors[currentAuthorsLength], str);
   }
 
 
@@ -53,12 +52,14 @@
       int authorIndex = -1;
       int i;
 
+
       // Stopped writing authors, increment
       currentAuthorsLength++;
 
+
       // Find authorIN in currentAuthors array
       for (i = 0; i < currentAuthorsLength; i++) {
-        
+
         // If found, get the index
         if (strcmp(currentAuthors[i], authorIN) == 0) {
           authorIndex = i;
@@ -137,6 +138,10 @@ int main(int argc, char** argv) {
   
   if(argc >= 3) {
     strcpy(authorIN, argv[2]);
+    
+    //authorIN to lowercase
+    char* a = authorIN;
+    for ( ; *a; ++a) *a = tolower(*a);
     
     yylex();
 
