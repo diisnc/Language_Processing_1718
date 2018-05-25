@@ -1,0 +1,30 @@
+	pushn 26
+	pushn 10
+start
+	pushs "?"
+	writes
+	read
+	atoi
+	storeg 1
+	pushs "?"
+	writes
+	read
+	atoi
+	storeg 4
+	pushi 1
+	storeg 25
+enquanto1: 	pushg 4
+	jz fenquanto1
+	pushg 25
+	pushg 1
+	mul
+	storeg 25
+	pushg 4
+	pushi 1
+	sub
+	storeg 4
+	jump enquanto1
+fenquanto1:
+	pushg 25
+	writei
+fim: stop
