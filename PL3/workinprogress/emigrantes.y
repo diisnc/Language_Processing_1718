@@ -14,8 +14,8 @@ int yyerror(char*);
 // edge_data vai guardar todos os tokens relacionados com ligações do grafo.
 // O trabalho de interpretar os conteúdos destes arrays (tendo em conta a ordem dos dados)
 // é do for loop que itera sobre o array.
-GArray* node_data;
-GArray* edge_data;
+GArray* node_data; // Formato: ["nome", "joao alberto", "idade", "895", [...], "emigrante", "joao", [...]]
+GArray* edge_data; // Formato: ["joao", "capela", "fez", "antonio", "baile", "participou"]
 %}
 
 %token OBJECT_TYPE STRING OBJECT_ID FIELD_ID FEZ PARTICIPOU ERR
@@ -55,13 +55,38 @@ int main() {
   edge_data = g_array_new( FALSE, TRUE, sizeof(char*));
   yyparse();
 
+  printf("\n\n\n\n\n=================== DOT OUTPUT ===================\n\n");
+
   // Graph header
   printf("digraph D {\n  node [shape=Mrecord fontname=\"Arial\"];\n  edge [fontname=\"Arial\"];\n");
 
   // Print every node
   // (unsigned int because node_data->len is a guint)
+  unsigned int lastUsed = 0;
   for (unsigned int i = 0; i < node_data->len; i++) {
-    printf("%s\n", g_array_index(node_data, char*, i));
+
+    if (strcmp(g_array_index(node_data, char*, i), "emigrante" ||
+        strcmp(g_array_index(node_data, char*, i), "obra" ||
+        strcmp(g_array_index(node_data, char*, i), "evento")
+    {
+      printf("%s [label=\"{", g_array_index(node_data, char*, i+1));
+      for (; lastUsed < i; lastUsed++) {
+
+        char* label = g_array_index(node_data, char*, lastUsed);
+        // TODOOOOOO
+        lastUsed++;
+        char* string = g_array_index(node_data, char*, lastUsed);
+
+        printf("%s", g_array_index(node_data, char*, i+1));
+
+      }
+    }
+
+    i++;
+    printf("%s [label="{", g_array_index(node_data, char*, i));
+
+
+    // joao [label="{Antonio Joao Joaquim | Partida: 1904-09-13 | Destino: Brasil}", URL="http://google.com"];
   }
 
   // Print every edge
