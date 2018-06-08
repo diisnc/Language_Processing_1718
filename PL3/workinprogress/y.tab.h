@@ -46,29 +46,33 @@ extern int yydebug;
   enum yytokentype
   {
     OBJECT_TYPE = 258,
-    STR = 259,
-    FEZ = 260,
-    PARTICIPOU = 261,
-    ERR = 262
+    STRING = 259,
+    OBJECT_ID = 260,
+    FIELD_ID = 261,
+    FEZ = 262,
+    PARTICIPOU = 263,
+    ERR = 264
   };
 #endif
 /* Tokens.  */
 #define OBJECT_TYPE 258
-#define STR 259
-#define FEZ 260
-#define PARTICIPOU 261
-#define ERR 262
+#define STRING 259
+#define OBJECT_ID 260
+#define FIELD_ID 261
+#define FEZ 262
+#define PARTICIPOU 263
+#define ERR 264
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 13 "emigrantes.y" /* yacc.c:1909  */
+#line 14 "emigrantes.y" /* yacc.c:1909  */
 
   char* str;
 
-#line 72 "y.tab.h" /* yacc.c:1909  */
+#line 76 "y.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

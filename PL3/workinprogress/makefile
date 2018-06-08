@@ -1,10 +1,10 @@
-#LIBS=`pkg-config --cflags --libs glib-2.0`
+LIBS=`pkg-config --cflags --libs glib-2.0`
 
 emigrantes: y.tab.o lex.yy.o
-	gcc -D_XOPEN_SOURCE=700 -std=c99 -o emigrantes y.tab.o lex.yy.o stack.c -ll -lm -lfl
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -o emigrantes y.tab.o lex.yy.o -ll -lm -lfl
 
 y.tab.o: y.tab.c
-	gcc -D_XOPEN_SOURCE=700 -std=c99 -c y.tab.c
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -c y.tab.c $(LIBS)
 
 lex.yy.o: lex.yy.c
 	gcc -D_XOPEN_SOURCE=700 -std=c99 -c lex.yy.c
