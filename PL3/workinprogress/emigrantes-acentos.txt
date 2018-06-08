@@ -1,5 +1,5 @@
 emigrante joao:
-  nome: "Antonio Joao Joaquim"
+  nome: "António João Joaquim"
   nascimento: "1890-11-24"
   morte: "1972-03-14"
   natural: "Portugal"
@@ -10,25 +10,25 @@ emigrante joao:
 obra hospitalassis:
   nome: "Hospital Manuel de Assis"
   data: "1940-02-01"
-  local: "Sao Paulo"
+  local: "São Paulo"
 
 obra escolapotassio:
-  nome: "Escola Cloreto de Potassio"
+  nome: "Escola Cloreto de Potássio"
   data: "1943-04-20"
-  local: "Para"
+  local: "Pará"
 
 obra capelamoniz:
-  nome: "Capela Martim Manhas"
+  nome: "Capela Martim Manhãs"
   data: "1964-06-07"
   local: "Belo Horizonte"
 
 evento bailereal47:
-  nome: "Baile Real da Realeza do Brasil numero 47"
+  nome: "Baile Real da Realeza do Brasil número 47"
   data: "1952-03-29"
   local: "Recife"
 
 evento inauguracaocapelamoniz:
-  nome: "Inauguracao da Capela Martim Manhas"
+  nome: "Inauguração da Capela Martim Manhãs"
   data: "1964-06-09"
   local: "Belo Horizonte"
 

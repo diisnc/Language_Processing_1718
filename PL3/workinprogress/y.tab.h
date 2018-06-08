@@ -45,38 +45,30 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    WORDSIZE = 258,
-    PUSH = 259,
-    POP = 260,
-    UNLOAD = 261,
-    PRINT = 262,
-    TOP = 263,
-    SUM = 264,
-    ERR = 265,
-    INT = 266
+    OBJECT_TYPE = 258,
+    STR = 259,
+    FEZ = 260,
+    PARTICIPOU = 261,
+    ERR = 262
   };
 #endif
 /* Tokens.  */
-#define WORDSIZE 258
-#define PUSH 259
-#define POP 260
-#define UNLOAD 261
-#define PRINT 262
-#define TOP 263
-#define SUM 264
-#define ERR 265
-#define INT 266
+#define OBJECT_TYPE 258
+#define STR 259
+#define FEZ 260
+#define PARTICIPOU 261
+#define ERR 262
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 19 "stringstack.y" /* yacc.c:1909  */
+#line 13 "emigrantes.y" /* yacc.c:1909  */
 
-    int num;
+  char* str;
 
-#line 80 "y.tab.h" /* yacc.c:1909  */
+#line 72 "y.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

@@ -1,0 +1,191 @@
+Terminals unused in grammar
+
+   ERR
+
+
+Estado 11 conflictos: 1 shift/reduce
+
+
+Gramática
+
+    0 $accept: OBJECTS $end
+
+    1 OBJECTS: OBJECTS OBJECT
+    2        | OBJECTS CONNECTION
+    3        | %empty
+
+    4 OBJECT: OBJECT_TYPE STR FIELDS
+
+    5 FIELDS: FIELDS FIELD
+    6       | FIELD
+
+    7 FIELD: STR STR
+
+    8 CONNECTION: STR FEZ STR
+    9           | STR PARTICIPOU STR
+
+
+Terminais, com as regras aonde aparecem
+
+$end (0) 0
+error (256)
+OBJECT_TYPE (258) 4
+STR (259) 4 7 8 9
+FEZ (260) 8
+PARTICIPOU (261) 9
+ERR (262)
+
+
+Não-terminais, com as regras aonde aparecem
+
+$accept (8)
+    à esquerda: 0
+OBJECTS (9)
+    à esquerda: 1 2 3, à direita: 0 1 2
+OBJECT (10)
+    à esquerda: 4, à direita: 1
+FIELDS (11)
+    à esquerda: 5 6, à direita: 4 5
+FIELD (12)
+    à esquerda: 7, à direita: 5 6
+CONNECTION (13)
+    à esquerda: 8 9, à direita: 2
+
+
+Estado0
+
+    0 $accept: . OBJECTS $end
+
+    $default  reduzir usando a regra 3 (OBJECTS)
+
+    OBJECTS  ir para o estado 1
+
+
+Estado1
+
+    0 $accept: OBJECTS . $end
+    1 OBJECTS: OBJECTS . OBJECT
+    2        | OBJECTS . CONNECTION
+
+    $end         fazer shift, e ir para o estado 2
+    OBJECT_TYPE  fazer shift, e ir para o estado 3
+    STR          fazer shift, e ir para o estado 4
+
+    OBJECT      ir para o estado 5
+    CONNECTION  ir para o estado 6
+
+
+Estado2
+
+    0 $accept: OBJECTS $end .
+
+    $default  aceite
+
+
+Estado3
+
+    4 OBJECT: OBJECT_TYPE . STR FIELDS
+
+    STR  fazer shift, e ir para o estado 7
+
+
+Estado4
+
+    8 CONNECTION: STR . FEZ STR
+    9           | STR . PARTICIPOU STR
+
+    FEZ         fazer shift, e ir para o estado 8
+    PARTICIPOU  fazer shift, e ir para o estado 9
+
+
+Estado5
+
+    1 OBJECTS: OBJECTS OBJECT .
+
+    $default  reduzir usando a regra 1 (OBJECTS)
+
+
+Estado6
+
+    2 OBJECTS: OBJECTS CONNECTION .
+
+    $default  reduzir usando a regra 2 (OBJECTS)
+
+
+Estado7
+
+    4 OBJECT: OBJECT_TYPE STR . FIELDS
+
+    STR  fazer shift, e ir para o estado 10
+
+    FIELDS  ir para o estado 11
+    FIELD   ir para o estado 12
+
+
+Estado8
+
+    8 CONNECTION: STR FEZ . STR
+
+    STR  fazer shift, e ir para o estado 13
+
+
+Estado9
+
+    9 CONNECTION: STR PARTICIPOU . STR
+
+    STR  fazer shift, e ir para o estado 14
+
+
+Estado10
+
+    7 FIELD: STR . STR
+
+    STR  fazer shift, e ir para o estado 15
+
+
+Estado11
+
+    4 OBJECT: OBJECT_TYPE STR FIELDS .
+    5 FIELDS: FIELDS . FIELD
+
+    STR  fazer shift, e ir para o estado 10
+
+    STR       [reduzir usando a regra 4 (OBJECT)]
+    $default  reduzir usando a regra 4 (OBJECT)
+
+    FIELD  ir para o estado 16
+
+
+Estado12
+
+    6 FIELDS: FIELD .
+
+    $default  reduzir usando a regra 6 (FIELDS)
+
+
+Estado13
+
+    8 CONNECTION: STR FEZ STR .
+
+    $default  reduzir usando a regra 8 (CONNECTION)
+
+
+Estado14
+
+    9 CONNECTION: STR PARTICIPOU STR .
+
+    $default  reduzir usando a regra 9 (CONNECTION)
+
+
+Estado15
+
+    7 FIELD: STR STR .
+
+    $default  reduzir usando a regra 7 (FIELD)
+
+
+Estado16
+
+    5 FIELDS: FIELDS FIELD .
+
+    $default  reduzir usando a regra 5 (FIELDS)

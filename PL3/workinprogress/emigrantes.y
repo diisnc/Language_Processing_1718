@@ -1,67 +1,53 @@
 %{
 #include <stdio.h>
 #include "y.tab.h"
-#include "stack.h"
 
 extern int yylineno;
 extern char* yytext;
 extern int yylex();
 int yyerror(char*);
-
-int unloadAndPrint();
-int sumStack(int levels);
-
-Stack* stack;
 %}
 
-%token WORDSIZE PUSH POP UNLOAD PRINT TOP SUM ERR INT
+%token OBJECT_TYPE STR FEZ PARTICIPOU ERR
 
 %union{
-    int num;
+  char* str;
 }
 
-%type <num> INT
+%type <str> STR OBJECT_TYPE
 
-%start INSTRUCTIONS
+%start OBJECTS
+
+%right STR
 
 %%
 
-INSTRUCTIONS : INSTRUCTIONS INSTRUCTION '\n'
-             |
-             ;
+OBJECTS : OBJECTS OBJECT
+        | OBJECTS CONNECTION
+        |
+        ;
 
-INSTRUCTION : PUSH INT  { stackPush(stack,$2); }
-            | POP       { stackPop(stack); }
-            | PRINT TOP { printf("top: %d\n",stackTop(stack)); }
-            | UNLOAD    { unloadAndPrint(); }
-            | SUM INT   { printf("sum: %d\n",sumStack($2)); }
-            ;
+OBJECT : OBJECT_TYPE STR FIELDS     { printf("object with type: %s and id: %s\n", $1, $2); }
+       ;
+
+FIELDS : FIELDS FIELD
+       | FIELD
+       ;
+
+FIELD : STR STR                  { printf("field: %s <==> %s\n", $1, $2); }
+      ;
+
+CONNECTION : STR FEZ STR         { printf("%s fez obra %s\n", $1, $3); }
+           | STR PARTICIPOU STR  { printf("%s participou em %s\n", $1, $3 ); }
+           ;
 %%
-
-int unloadAndPrint () {
-    printf("Unloading stack\n");
-    while (!stackIsEmpty(stack)) {
-        printf("- %d\n",stackPop(stack));
-    }
-}
-
-int sumStack (int levels) {
-    int sum = 0;
-
-    for (int i = 0; i < levels; i++, sum += stackPop(stack));
-
-    return sum;
-
-}
 
 int main() {
-    stack = stackCreate();
     yyparse();
-    stackDestroy(stack);
     return 0;
 }
 
 int yyerror(char* err) {
-    fprintf(stderr,"%s, %s, %d\n",err,yytext,yylineno);
+    fprintf(stderr,"Error: %s\nyytext: %s\nyylineno: %d\n",err,yytext,yylineno);
     return 0;
 }
