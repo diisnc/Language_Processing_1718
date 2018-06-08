@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
+#include <ctype.h>
 #include "y.tab.h"
 
 extern int yylineno;
@@ -65,35 +66,66 @@ int main() {
   unsigned int lastUsed = 0;
   for (unsigned int i = 0; i < node_data->len; i++) {
 
-    if (strcmp(g_array_index(node_data, char*, i), "emigrante" ||
-        strcmp(g_array_index(node_data, char*, i), "obra" ||
-        strcmp(g_array_index(node_data, char*, i), "evento")
-    {
+    // Look for emigrante, obra, or evento
+    if (strcmp(g_array_index(node_data, char*, i), "emigrante") == 0 ||
+        strcmp(g_array_index(node_data, char*, i), "obra") == 0 ||
+        strcmp(g_array_index(node_data, char*, i), "evento") == 0
+    ) {
+      // Found!
+      // Now pick back up on the "lastUsed" index and create the node
+
+      // Start node
       printf("%s [label=\"{", g_array_index(node_data, char*, i+1));
+      char* label;
+      char* string;
+      int startedWriting = 0;
       for (; lastUsed < i; lastUsed++) {
 
-        char* label = g_array_index(node_data, char*, lastUsed);
-        // TODOOOOOO
-        lastUsed++;
-        char* string = g_array_index(node_data, char*, lastUsed);
+        label = g_array_index(node_data, char*, lastUsed);
+        label[0] = toupper(label[0]); // Uppercase first char of label
 
-        printf("%s", g_array_index(node_data, char*, i+1));
+        lastUsed++; // Go to next node_data token
 
+        string = g_array_index(node_data, char*, lastUsed);
+
+        if (strcmp(label, "Url") == 0) {
+          break;
+        }
+
+        if (startedWriting) {
+          printf(" | ");
+        } else {
+          startedWriting = 1;
+        }
+
+        printf("%s: %s", label, string);
+      }
+
+      // Finished wrting node
+      // Print URL if we stopped on that field,
+      // or just close the node if no URL found at the end
+      if (strcmp(label, "Url") == 0) {
+        printf("}\", URL=\"%s\"];\n", string);
+        lastUsed += 3; // Move lastUsed 3 steps forward because we stopped at url
+      } else {
+        printf("}\"];\n");
+        lastUsed += 2; // Move lastUsed 2 steps forward
       }
     }
-
-    i++;
-    printf("%s [label="{", g_array_index(node_data, char*, i));
-
-
-    // joao [label="{Antonio Joao Joaquim | Partida: 1904-09-13 | Destino: Brasil}", URL="http://google.com"];
   }
 
   // Print every edge
   for (unsigned int j = 0; j < edge_data->len; j++) {
-    printf("%s\n", g_array_index(edge_data, char*, j));
+    char* doer = g_array_index(edge_data, char*, j);
+    j++;
+    char* done = g_array_index(edge_data, char*, j);
+    j++;
+    char* action = g_array_index(edge_data, char*, j);
+
+    printf("%s -> %s[label=\"%s\"]\n", doer, done, action);
   }
 
+  // Close graph
   printf("}\n");
 
   return 0;

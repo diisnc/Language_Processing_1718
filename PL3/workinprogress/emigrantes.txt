@@ -32,9 +32,26 @@ evento inauguracaocapelamoniz:
   data: "1964-06-09"
   local: "Belo Horizonte"
 
+emigrante joana:
+  nome: "Joana Maria"
+  nascimento: "1892-10-25"
+  morte: "1972-03-15"
+  natural: "Portugal"
+  partida: "1904-10-19"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=joana+maria&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra orfanatoteixeira:
+  nome: "Ofanato Mendes Teixeira"
+  data: "1947-02-10"
+  local: "Belo Horizonte"
+
 joao fez hospitalassis
 joao fez escolapotassio
 joao fez capelamoniz
 
 joao participou bailereal47
 joao participou inauguracaocapelamoniz
+
+joana participou bailereal47
+joana fez orfanatoteixeira

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -67,6 +67,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
+#include <ctype.h>
 #include "y.tab.h"
 
 extern int yylineno;
@@ -79,10 +80,10 @@ int yyerror(char*);
 // edge_data vai guardar todos os tokens relacionados com ligações do grafo.
 // O trabalho de interpretar os conteúdos destes arrays (tendo em conta a ordem dos dados)
 // é do for loop que itera sobre o array.
-GArray* node_data;
-GArray* edge_data;
+GArray* node_data; // Formato: ["nome", "joao alberto", "idade", "895", [...], "emigrante", "joao", [...]]
+GArray* edge_data; // Formato: ["joao", "capela", "fez", "antonio", "baile", "participou"]
 
-#line 86 "y.tab.c" /* yacc.c:339  */
+#line 87 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -137,15 +138,17 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE YYSTYPE;
+
 union YYSTYPE
 {
-#line 23 "emigrantes.y" /* yacc.c:355  */
+#line 24 "emigrantes.y" /* yacc.c:355  */
 
   char* str;
 
-#line 148 "y.tab.c" /* yacc.c:355  */
+#line 149 "y.tab.c" /* yacc.c:355  */
 };
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -159,7 +162,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 163 "y.tab.c" /* yacc.c:358  */
+#line 166 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -457,8 +460,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    33,    33,    34,    35,    38,    41,    42,    45,    48,
-      49
+       0,    34,    34,    35,    36,    39,    42,    43,    46,    49,
+      50
 };
 #endif
 
@@ -1232,31 +1235,31 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 38 "emigrantes.y" /* yacc.c:1646  */
+#line 39 "emigrantes.y" /* yacc.c:1646  */
     { char* one = strdup((yyvsp[-2].str)); char* two = strdup((yyvsp[-1].str)); g_array_append_val(node_data, one); g_array_append_val(node_data, two); }
-#line 1238 "y.tab.c" /* yacc.c:1646  */
+#line 1241 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 45 "emigrantes.y" /* yacc.c:1646  */
+#line 46 "emigrantes.y" /* yacc.c:1646  */
     { char* one = strdup((yyvsp[-1].str)); char* two = strdup((yyvsp[0].str)); g_array_append_val(node_data, one); g_array_append_val(node_data, two); }
-#line 1244 "y.tab.c" /* yacc.c:1646  */
+#line 1247 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 48 "emigrantes.y" /* yacc.c:1646  */
+#line 49 "emigrantes.y" /* yacc.c:1646  */
     { char* one = strdup((yyvsp[-2].str)); char* three = strdup((yyvsp[0].str)); char* f = "fez"; g_array_append_val(edge_data, one); g_array_append_val(edge_data, three); g_array_append_val(edge_data, f); }
-#line 1250 "y.tab.c" /* yacc.c:1646  */
+#line 1253 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 49 "emigrantes.y" /* yacc.c:1646  */
+#line 50 "emigrantes.y" /* yacc.c:1646  */
     { char* one = strdup((yyvsp[-2].str)); char* three = strdup((yyvsp[0].str)); char* p = "participou"; g_array_append_val(edge_data, one); g_array_append_val(edge_data, three); g_array_append_val(edge_data, p); }
-#line 1256 "y.tab.c" /* yacc.c:1646  */
+#line 1259 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1260 "y.tab.c" /* yacc.c:1646  */
+#line 1263 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1484,7 +1487,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 51 "emigrantes.y" /* yacc.c:1906  */
+#line 52 "emigrantes.y" /* yacc.c:1906  */
 
 
 int main() {
@@ -1492,20 +1495,76 @@ int main() {
   edge_data = g_array_new( FALSE, TRUE, sizeof(char*));
   yyparse();
 
+  printf("\n\n\n\n\n=================== DOT OUTPUT ===================\n\n");
+
   // Graph header
   printf("digraph D {\n  node [shape=Mrecord fontname=\"Arial\"];\n  edge [fontname=\"Arial\"];\n");
 
   // Print every node
   // (unsigned int because node_data->len is a guint)
+  unsigned int lastUsed = 0;
   for (unsigned int i = 0; i < node_data->len; i++) {
-    printf("%s\n", g_array_index(node_data, char*, i));
+
+    // Look for emigrante, obra, or evento
+    if (strcmp(g_array_index(node_data, char*, i), "emigrante") == 0 ||
+        strcmp(g_array_index(node_data, char*, i), "obra") == 0 ||
+        strcmp(g_array_index(node_data, char*, i), "evento") == 0
+    ) {
+      // Found!
+      // Now pick back up on the "lastUsed" index and create the node
+
+      // Start node
+      printf("%s [label=\"{", g_array_index(node_data, char*, i+1));
+      char* label;
+      char* string;
+      int startedWriting = 0;
+      for (; lastUsed < i; lastUsed++) {
+
+        label = g_array_index(node_data, char*, lastUsed);
+        label[0] = toupper(label[0]); // Uppercase first char of label
+
+        lastUsed++; // Go to next node_data token
+
+        string = g_array_index(node_data, char*, lastUsed);
+
+        if (strcmp(label, "Url") == 0) {
+          break;
+        }
+
+        if (startedWriting) {
+          printf(" | ");
+        } else {
+          startedWriting = 1;
+        }
+
+        printf("%s: %s", label, string);
+      }
+
+      // Finished wrting node
+      // Print URL if we stopped on that field,
+      // or just close the node if no URL found at the end
+      if (strcmp(label, "Url") == 0) {
+        printf("}\", URL=\"%s\"];\n", string);
+        lastUsed += 3; // Move lastUsed 3 steps forward because we stopped at url
+      } else {
+        printf("}\"];\n");
+        lastUsed += 2; // Move lastUsed 2 steps forward
+      }
+    }
   }
 
   // Print every edge
   for (unsigned int j = 0; j < edge_data->len; j++) {
-    printf("%s\n", g_array_index(edge_data, char*, j));
+    char* doer = g_array_index(edge_data, char*, j);
+    j++;
+    char* done = g_array_index(edge_data, char*, j);
+    j++;
+    char* action = g_array_index(edge_data, char*, j);
+
+    printf("%s -> %s[label=\"%s\"]\n", doer, done, action);
   }
 
+  // Close graph
   printf("}\n");
 
   return 0;
