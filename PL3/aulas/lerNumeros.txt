@@ -1,0 +1,8 @@
+ler a
+b=0
+enquanto(a!=0)
+{
+  b=b+a
+  ler a
+}
+escrever b

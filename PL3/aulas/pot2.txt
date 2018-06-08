@@ -1,0 +1,10 @@
+ler b
+ler e
+z=1
+enquanto(e)
+{
+  z=z*b
+  e=e-1
+}
+escrever z
+

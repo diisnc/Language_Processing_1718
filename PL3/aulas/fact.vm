@@ -1,0 +1,30 @@
+	pushn 26
+	pushn 10
+start
+	read
+	atoi
+	storeg 0
+	pushi 1
+	storeg 17
+	pushg 0
+	storeg 26
+ciclo1:
+	pushg 26
+	jz fciclo1
+	pushg 17
+	pushg 0
+	mul
+	storeg 17
+	pushg 0
+	pushi 1
+	sub
+	storeg 0
+	pushg 26
+	pushi 1
+	sub
+	storeg 26
+	jump ciclo1
+fciclo1:
+	pushg 17
+	writei
+fim: stop
