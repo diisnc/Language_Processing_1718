@@ -66,6 +66,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include <string.h>
 #include "y.tab.h"
 
 extern int yylineno;
@@ -73,7 +74,15 @@ extern char* yytext;
 extern int yylex();
 int yyerror(char*);
 
-#line 77 "y.tab.c" /* yacc.c:339  */
+// node_data vai guardar todos os tokens relacionados com nodos do grafo,
+// na ordem em que foram recebidos.
+// edge_data vai guardar todos os tokens relacionados com ligações do grafo.
+// O trabalho de interpretar os conteúdos destes arrays (tendo em conta a ordem dos dados)
+// é do for loop que itera sobre o array.
+GArray* node_data;
+GArray* edge_data;
+
+#line 86 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -131,11 +140,11 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 14 "emigrantes.y" /* yacc.c:355  */
+#line 23 "emigrantes.y" /* yacc.c:355  */
 
   char* str;
 
-#line 139 "y.tab.c" /* yacc.c:355  */
+#line 148 "y.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -150,7 +159,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 154 "y.tab.c" /* yacc.c:358  */
+#line 163 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -448,8 +457,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    24,    24,    25,    26,    29,    32,    33,    36,    39,
-      40
+       0,    33,    33,    34,    35,    38,    41,    42,    45,    48,
+      49
 };
 #endif
 
@@ -1223,31 +1232,31 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 29 "emigrantes.y" /* yacc.c:1646  */
-    { printf("object with type: %s and id: %s\n", (yyvsp[-2].str), (yyvsp[-1].str)); }
-#line 1229 "y.tab.c" /* yacc.c:1646  */
+#line 38 "emigrantes.y" /* yacc.c:1646  */
+    { char* one = strdup((yyvsp[-2].str)); char* two = strdup((yyvsp[-1].str)); g_array_append_val(node_data, one); g_array_append_val(node_data, two); }
+#line 1238 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 36 "emigrantes.y" /* yacc.c:1646  */
-    { printf("field: %s <==> %s\n", (yyvsp[-1].str), (yyvsp[0].str)); }
-#line 1235 "y.tab.c" /* yacc.c:1646  */
+#line 45 "emigrantes.y" /* yacc.c:1646  */
+    { char* one = strdup((yyvsp[-1].str)); char* two = strdup((yyvsp[0].str)); g_array_append_val(node_data, one); g_array_append_val(node_data, two); }
+#line 1244 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 39 "emigrantes.y" /* yacc.c:1646  */
-    { printf("%s fez obra %s\n", (yyvsp[-2].str), (yyvsp[0].str)); }
-#line 1241 "y.tab.c" /* yacc.c:1646  */
+#line 48 "emigrantes.y" /* yacc.c:1646  */
+    { char* one = strdup((yyvsp[-2].str)); char* three = strdup((yyvsp[0].str)); char* f = "fez"; g_array_append_val(edge_data, one); g_array_append_val(edge_data, three); g_array_append_val(edge_data, f); }
+#line 1250 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 40 "emigrantes.y" /* yacc.c:1646  */
-    { printf("%s participou em %s\n", (yyvsp[-2].str), (yyvsp[0].str) ); }
-#line 1247 "y.tab.c" /* yacc.c:1646  */
+#line 49 "emigrantes.y" /* yacc.c:1646  */
+    { char* one = strdup((yyvsp[-2].str)); char* three = strdup((yyvsp[0].str)); char* p = "participou"; g_array_append_val(edge_data, one); g_array_append_val(edge_data, three); g_array_append_val(edge_data, p); }
+#line 1256 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1251 "y.tab.c" /* yacc.c:1646  */
+#line 1260 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1475,15 +1484,34 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 42 "emigrantes.y" /* yacc.c:1906  */
+#line 51 "emigrantes.y" /* yacc.c:1906  */
 
 
 int main() {
-    yyparse();
-    return 0;
+  node_data = g_array_new( FALSE, TRUE, sizeof(char*));
+  edge_data = g_array_new( FALSE, TRUE, sizeof(char*));
+  yyparse();
+
+  // Graph header
+  printf("digraph D {\n  node [shape=Mrecord fontname=\"Arial\"];\n  edge [fontname=\"Arial\"];\n");
+
+  // Print every node
+  // (unsigned int because node_data->len is a guint)
+  for (unsigned int i = 0; i < node_data->len; i++) {
+    printf("%s\n", g_array_index(node_data, char*, i));
+  }
+
+  // Print every edge
+  for (unsigned int j = 0; j < edge_data->len; j++) {
+    printf("%s\n", g_array_index(edge_data, char*, j));
+  }
+
+  printf("}\n");
+
+  return 0;
 }
 
 int yyerror(char* err) {
-    fprintf(stderr,"Error: %s\nyytext: %s\nyylineno: %d\n",err,yytext,yylineno);
-    return 0;
+  fprintf(stderr,"Error: %s\nyytext: %s\nyylineno: %d\n",err,yytext,yylineno);
+  return 0;
 }

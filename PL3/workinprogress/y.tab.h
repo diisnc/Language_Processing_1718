@@ -68,7 +68,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 14 "emigrantes.y" /* yacc.c:1909  */
+#line 23 "emigrantes.y" /* yacc.c:1909  */
 
   char* str;
 
