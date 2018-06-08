@@ -1,0 +1,34 @@
+emigrante joao:
+  nome: "António João Joaquim"
+  nascimento: "1890-11-24"
+  morte: "1972-03-14"
+  natural: "Portugal"
+  partida: "1904-09-13"
+  destino: "Brasil"
+  fez: ["hospitalassis", "escolapotassio", "capelamoniz"]
+  participou: ["bailereal47", "inauguracaocapelamoniz"]
+
+obra hospitalassis:
+  nome: "Hospital Manuel de Assis"
+  data: "1940-02-01"
+  local: "São Paulo"
+
+obra escolapotassio:
+  nome: "Escola Cloreto de Potássio"
+  data: "1943-04-20"
+  local: "Pará"
+
+obra capelamoniz:
+  nome: "Capela Martim Manhãs"
+  data: "1964-06-07"
+  local: "Belo Horizonte"
+
+evento bailereal47:
+  nome: "Baile Real da Realeza do Brasil número 47"
+  data: "1952-03-29"
+  local: "Recife"
+
+evento inauguracaocapelamoniz:
+  nome: "Inauguração da Capela Martim Manhãs"
+  data: "1964-06-09"
+  local: "Belo Horizonte"

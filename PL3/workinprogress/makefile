@@ -1,0 +1,16 @@
+#LIBS=`pkg-config --cflags --libs glib-2.0`
+
+stringstack: y.tab.o lex.yy.o
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -o stringstack y.tab.o lex.yy.o stack.c -ll -lm -lfl
+
+y.tab.o: y.tab.c
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -c y.tab.c
+
+lex.yy.o: lex.yy.c
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -c lex.yy.c
+
+y.tab.c y.tab.h: stringstack.y
+	yacc -d stringstack.y
+
+lex.yy.c: stringstack.l y.tab.h
+	flex stringstack.l
