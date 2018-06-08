@@ -1,0 +1,23 @@
+brief:["edgar",1,"estudar",
+       "patricia",2,"fumar",
+       "diogo",3,"karate"]
+
+agenda: {
+    { codigo : 1,
+      tarefas : {
+        { 20,22,baixa,"lavar o chao" },
+        { 30,23,alta,"lavar o chao" }
+      }
+    },
+    { codigo : 2,
+      tarefas : {
+        { 30,23,alta,"lavar o chao" }
+      }
+    },
+    { codigo : 3,
+      tarefas : {
+        { 30,23,alta,"lavar o chao" }
+      }
+    }
+
+}
