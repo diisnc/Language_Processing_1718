@@ -1,0 +1,57 @@
+emigrante joao:
+  nome: "Antonio Joao Joaquim"
+  nascimento: "1890-11-24"
+  morte: "1972-03-14"
+  natural: "Portugal"
+  partida: "1904-09-13"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=antonio+joao+joaquim&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra hospitalassis:
+  nome: "Hospital Manuel de Assis"
+  data: "1940-02-01"
+  local: "Sao Paulo"
+
+obra escolapotassio:
+  nome: "Escola Cloreto de Potassio"
+  data: "1943-04-20"
+  local: "Para"
+
+obra capelamoniz:
+  nome: "Capela Martim Manhas"
+  data: "1964-06-07"
+  local: "Belo Horizonte"
+
+evento bailereal47:
+  nome: "Baile Real da Realeza do Brasil numero 47"
+  data: "1952-03-29"
+  local: "Recife"
+
+evento inauguracaocapelamoniz:
+  nome: "Inauguracao da Capela Martim Manhas"
+  data: "1964-06-09"
+  local: "Belo Horizonte"
+
+emigrante joana:
+  nome: "Joana Maria"
+  nascimento: "1892-10-25"
+  morte: "1972-03-15"
+  natural: "Portugal"
+  partida: "1904-10-19"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=joana+maria&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra orfanatoteixeira:
+  nome: "Ofanato Mendes Teixeira"
+  data: "1947-02-10"
+  local: "Belo Horizonte"
+
+joao fez hospitalassis
+joao fez escolapotassio
+joao fez capelamoniz
+
+joao participou bailereal47
+joao participou inauguracaocapelamoniz
+
+joana participou bailereal47
+joana fez orfanatoteixeira

@@ -1,0 +1,207 @@
+Olá diana! Fiz este em .txt em vez de markdown porque estou cansadinho :(
+Qualquer coisa diz!! eu percebo buéeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeees disto.
+
+Ok neste projeto tínhamos de especificar uma linguagem onde se escrevem dados sobre emigrantes,
+obras, e eventos, e ligações entre eles (emigrante fez obra ou imigrante participou em evento).
+
+Tivemos de fazer um lexer em flex e um parser em yacc (actually bison, é a mesma coisa, não importa).
+A output tem de ser um grafo em dot como tu fizeste no trabalho anterior, e o professor fala em percorrer
+o grafo e não sei que mais.
+Então eu adicionei a possibilidade de meter um campo URL nos objeto da nossa linguagem,
+e o interpretador cria o grafo de maneira que clicar nesse nodo redireciona para o URL.
+
+Comecei por fazer um ficheiro com o que seria a nossa linguagem, vai ver: emigrantes.txt
+
+E depois fui fazer um grafo que seria o nosso objetivo final, vai ver: grafo-exemplo.txt
+
+Depois de fazer estes dois ficheiros comecei a fazer o ficheiro flex (emigrantes.l).
+Agora aqui tens uma explicaçãozita de cada padrão. Os padrões têm uns printfs fixes para fazer
+debugging que eu deixei ficar, o código dot é imprimido pelo yacc no fim por isso não incomoda.
+
+__________________________________________________________
+Primeiro declaramos estes padrões que usamos muitas vezes:
+
+id       [a-zA-Z0-9]+
+  Uma ID com letras ou numeros.
+
+number   [0-9]+
+  Um número inteiro positchivo, acho que nem usamos isto mas deixei estar porque é fixe.
+
+string   [^"\r\n]+
+  Uma string. Apanha tudo o que tem à frente até chegar a uma aspa, e tambem pára se encontrar
+  uma newline (e provavelmente vai crashar)
+
+wspace   [ \r\n]*
+  Whitespace, usei isto para ignorar espaço em branco entre cenas. Inclui o \r para compatibilidade com windows.
+
+newline  (\r\n|\n)
+  Um newline compatível com linux e windows! Porque eu editei os ficheiros no windows, preciso disto :)
+
+
+___________________________________________________________
+Agora finalmente os padrões! que fazem coisas! wohooooooooo
+
+(emigrante|obra|evento)                 { printf("flex: Object type: %s\n", yytext);             BEGIN object_id; yylval.str = strdup(yytext); return OBJECT_TYPE; }
+
+  Apanha as palavras reservadas emigrante, obra, ou evento,
+  e diz ao yacc que apanhamos um token do tipo OBJECT_TYPE.
+  (e passa o valor do tipo dentro de yylval.str, mas neste
+  momento o yacc não faz nada com o valor do OBJECT_TYPE).
+
+{id}                                    { printf("flex: Link ID: %s\n", yytext);                 BEGIN connection; yylval.str = strdup(yytext); return OBJECT_ID; }
+
+  Apanha uma ID dentro do contexto inicial, o que quer dizer que aí
+  vem uma connection (tipo alberto fez hospital, ou maria participou baile)
+  Diz ao YACC que apanhou um OBJECT_ID, porque um emigrante é um objeto e em
+  "alberto fez hospital", por exemplo, alberto é a ID do objeto desse emigrante.
+
+<object_id>[ ]                          { /* Eating the space between object type and its ID */ }
+
+  Come o espaço entre o tipo de um objeto e a sua ID.
+
+<object_id>{id}                         { printf("flex: Object ID: %s\n", yytext);               yylval.str = strdup(yytext); return OBJECT_ID; }
+
+  Apanha uma ID de um objeto, dentro do contexto object_id.
+
+<object_id>:{wspace}                    {                                                        BEGIN field; }
+
+  Apanha o espaço em branco no fim de um object_id e entra no contexto field, porque a seguir a uma id de um objeto
+  que acaba com dois pontos vem um campo!
+
+<field>{id}                             { printf("flex: Field ID: %s\n", yytext);                yylval.str = strdup(yytext); return FIELD_ID; }
+
+  Apanha a ID de um campo, por exemplo em
+
+    emigrante alberto:
+      nome: "Abreu"
+
+  estamos a apanhar "nome".
+  Dizemos ao YACC que este token é um FIELD_ID.
+
+<field>\:{wspace}\"                     {                                                        BEGIN field_value; }
+
+  Apanha os dois pontos no fim de um field_id e entra no contexto
+  field_value que vai apanhar o valor do campo.
+
+<field_value>{string}                   { printf("flex: String: %s\n", yytext);                  yylval.str = strdup(yytext); return STRING; }
+
+  Apanha o valor do campo. No exemplo do emigrante alberto lá em cima, estaríamos a apanhar o nome dele (Abreu).
+  Dizemos ao YACC que isto é um token do tipo STRING.
+
+<field_value>\"[ ]*{newline}{2,}         { printf("flex: Two newlines after field value\n");      BEGIN INITIAL; }
+
+  Apanha duas newlines ou mais no fim de um campo de um objeto. Isto quer dizer que o objeto acabou, e não há
+  mais campos a seguir. Vamos para o contexto inicial!
+
+<field_value>\"{wspace}                 { printf("flex: End of string (not two newlines)\n");    BEGIN field; }
+
+  Apanha whitespace no fim de um campo, menos que duas newlines seguidas (senão era ativado o padrao acima deste)
+  (porque o flex escolhe o padrão que apanha a string mais comprida, e em empate a que está definida mais acima)
+  por isso vem aí mais um campo, voltamos ao contexto field.
+
+<connection>{wspace}fez{wspace}         { printf("flex: fez\n");                                 return FEZ; }
+
+  Contexto connection, que apanha aquelas cenas do "antonio fez asneiras". Este apanha o "fez" e retorna um token FEZ.
+
+<connection>{wspace}participou{wspace}  { printf("flex: participou\n");                          return PARTICIPOU; }
+
+  Este apanha o "participou" e retorna o token PARTICIPOU.
+
+<connection>{id}                        { printf("flex: Link ID string: %s\n", yytext);          yylval.str = strdup(yytext); return OBJECT_ID; }
+
+ Este apanha uma id de uma connection, seja a da esquerda ou direita (em "antonio fez hospital",
+ antonio e hospital sao os dois OBJECT_ID).
+
+<connection>[ ]*{newline}               { printf("flex: End of connection\n");                   BEGIN INITIAL; }
+
+  Apanha whitespace no fim de um "antonio participou baile" e volta ao contexto inicial.
+
+{newline}                               { printf("flex: Eating newline.\n");                     yylineno++; }
+
+  Come as newlines, para podermos te-las a vontade na nossa input.
+
+.                                       { printf("flex: Unexpected character (return ERR).\n");  return ERR; }
+
+  Qualquer caracter que seja apanhado aqui, foi em erro, por isso retornamos o token ERR.
+
+
+
+Uauu já leste tanto! Assim mesmo, sempre a dar forte!
+
+Agora vamos falar do YACC (que neste caso é bison porque o yacc é antigo).
+
+Eu acho que a gramática é bastante self-explicatória, é só veres lado a lado isto
+e o ficheiro de input que usamos:
+
+
+OBJECTS : OBJECTS OBJECT
+        | OBJECTS CONNECTION
+        |
+        ;
+
+OBJECT : OBJECT_TYPE OBJECT_ID FIELDS
+       ;
+
+FIELDS : FIELDS FIELD
+       | FIELD
+       ;
+
+FIELD : FIELD_ID STRING
+      ;
+
+CONNECTION : OBJECT_ID FEZ OBJECT_ID
+           | OBJECT_ID PARTICIPOU OBJECT_ID
+           ;
+
+=============
+
+No YACC (emigrantes.y) usamos arrays da glib que crescem sozinhos. Temos dois:
+
+node_data = g_array_new( FALSE, TRUE, sizeof(char*));
+edge_data = g_array_new( FALSE, TRUE, sizeof(char*));
+
+O primeiro FALSE diz que não queremos que o array tenha um campo a 0 extra no fim.
+O TRUE diz que queremos inicializar o array a zeros.
+
+O array node_data vai receber todos os tokens que apanhamos relacionados a nodos, na ordem em que aparecem.
+
+O array edge_data vai receber todos os tokens que apanhamos relacionados a arestas, também na ordem em que aparecem.
+
+Se olhares para as ações na gramática é basicamente isso que se está a fazer, meter as strings todas no seu array.
+
+No fim, ficamos com os arrays no formato:
+
+node_data:
+  1: nome
+  2: Joao Oliveira
+  3: idade
+  4: 300
+  5: emigrante
+  6: joao
+
+edge_data:
+  1: antonio
+  2: hospital
+  3: fez
+
+A ordem dos tokens no edge_data é a ideal para imprimirmos a linha do dot que faz uma aresta:
+
+  joao -> hospitalassis[label="fez"]
+
+Mas se reparares, a ordem do node_data está um bocado estranha. Isto é porque apanhamos o tipo do objeto e a sua
+ID depois de apanharmos os campos.
+Por causa disto, ao percorrer o array, primeiro avançamos até encontrar emigrante, obra, ou evento.
+Depois usamos um indíce secundário para percorrer tudo o que passamos à frente até encontrar uma dessas palavras.
+Ao percorrer o array com esse indíce secundário, vamos escrevendo a linha do dot que cria um nó:
+
+  escolapotassio [label="{Escola Cloreto de Potassio | Data: 1943-04-20 | Local: Para}"];
+
+Se reparares há para lá um bocadinho de código extra para meter os " | " entre os campos, e para meter um URL
+nos objetos que têm esse campo como último (tem de ser último, senão os outros vão ser ignorados e vão aparecer no nodo
+seguinte e crasha tudo :D)
+
+Esse URL depois serve para redirecionar o utilizador para lá quando ele clica no nodo correspondente!
+
+Este código de imprimir o dot está todo na main() do emigrantes.y.
+
+Boa sortchiiii qualquer coisa diz!!
