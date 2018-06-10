@@ -4,16 +4,16 @@ emigrante alberto:
   morte: "2002-05-24"
   natural: "Portugal"
   partida: "1950-01-13"
-  destino: "França"
+  destino: "Franca"
   url: "https://www.google.pt/search?q=alberto+faria&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
 
 obra hospitalgomes:
-  nome: "Hospital Gomes de Sá"
+  nome: "Hospital Gomes de Sa"
   data: "1974-02-01"
   local: "Paris"
 
 obra restaurantebras:
-  nome: "Restaurante Brás"
+  nome: "Restaurante Bras"
   data: "1989-04-20"
   local: "Marseille"
 
@@ -31,4 +31,4 @@ alberto fez hospitalgomes
 alberto fez restaurantebras
 alberto fez capelaforte
 
-joao participou inauguracaocapelaforte
+alberto participou inauguracaocapelaforte

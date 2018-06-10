@@ -1,0 +1,13 @@
+digraph D {
+  node [shape=Mrecord fontname="Arial"];
+  edge [fontname="Arial"];
+  alberto [label="{Nome: Alberto Faria | Nascimento: 1920-11-22 | Morte: 2002-05-24 | Natural: Portugal | Partida: 1950-01-13 | Destino: Franca}", URL="https://www.google.pt/search?q=alberto+faria&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"];
+  hospitalgomes [label="{Nome: Hospital Gomes de Sa | Data: 1974-02-01 | Local: Paris}"];
+  restaurantebras [label="{Nome: Restaurante Bras | Data: 1989-04-20 | Local: Marseille}"];
+  capelaforte [label="{Nome: Capela Fortalecimento | Data: 1997-06-07 | Local: Aix En Provence}"];
+  inauguracaocapelaforte [label="{Nome: Inauguracao da Capela Fortalecimento | Data: 1952-03-29 | Local: Aix En Provence}"];
+  alberto -> hospitalgomes[label="fez"]
+  alberto -> restaurantebras[label="fez"]
+  alberto -> capelaforte[label="fez"]
+  alberto -> inauguracaocapelaforte[label="participou"]
+}
