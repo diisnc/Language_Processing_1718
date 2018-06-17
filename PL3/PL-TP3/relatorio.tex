@@ -1,0 +1,1064 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{a4wide}
+\usepackage[pdftex]{hyperref}
+\usepackage{graphicx}
+\usepackage[demo]{rotating}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usetikzlibrary{patterns}
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{epstopdf}
+\usepackage{pdflscape}
+\lstset{escapeinside={<@}{@>}}
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+
+\usepackage{biblatex}
+\addbibresource{sample.bib}
+
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+
+\includegraphics[width=0.45\textwidth]{logo.jpg}\\[0.5cm]
+
+{\large Universidade do Minho - Escola de Engenharia}\\[0.5cm]
+
+{\large Mestrado Integrado em Engenharia Informática}\\[0.5cm]
+
+{\large Processamento de Linguagens e Compiladores}\\[0.5cm]
+
+{\large 2017/2018 - 2ºsemestre}\\[0.5cm]
+% Title
+\rule{\linewidth}{0.5mm} \\[0.4cm]
+{ \huge \bfseries Trabalho Prático nº 3 - YACC \\[0.4cm] }
+\rule{\linewidth}{0.5mm} \\[1.5cm]
+
+% Author and supervisor
+\noindent
+\begin{minipage}{0.4\textwidth}
+  \begin{flushleft} \large
+    \emph{Autores :}\\
+    Diana Costa \textsc{(A78985)}\\
+    \includegraphics[width=1.5cm]{diana.png}\break
+    Marcos Pereira \textsc{(A79116)}\\
+    \includegraphics[width=1.5cm]{marcos.jpg}\break 
+    Vitor Castro \textsc{(A77870)}\\
+    \includegraphics[width=1.5cm]{vitor.jpg}\break
+    
+  \end{flushleft}
+\end{minipage}%
+\vfill
+
+
+{\large Braga, \today}
+
+\end{center}
+\end{titlepage}
+
+
+\begin{abstract}
+
+\hspace{3mm} Perante a proposta de realizar um exercício sobre gramáticas independentes do contexto e processadores de linguagens segundo o método da tradução dirigida pela sintaxe (suportado numa gramática tradutora), utilizando o par \textbf{lex/yacc}, houve um impasse inicial, devido à necessidade de uma boa estruturação dos problemas. O nível de dificuldade e complexidade deste projeto, quando comparada com o primeiro exercício sobre GAWK, ou o segundo sobre FLEX, é bastante superior, e levou a que o grupo se debatesse e fizesse um esforço conjunto para perceber como aplicar os conhecimentos. Tudo isto requeriu a escolha e desenvolvimento acertado da gramática, expressões regulares e respetivas ações semânticas, estruturas de dados globais para armazenar os dados ao longo do processamento, e uma criação/análise aprofundada de extratos de texto (\emph{datasets}), de forma a que a resolução do exercício fosse a mais clara e simples possível.
+\par Depois de algum tempo e trabalho, o resultado encontrado foi satisfatório, e os objetivos e respostas às questões do enunciado proposto cumpridos.
+
+\end{abstract}
+ 
+
+
+\pagebreak
+\tableofcontents
+\pagebreak
+
+\section{Introdução}
+\label{sec:1}
+\hspace{3mm} O objetivo deste trabalho prende-se com o aumento da experiência em ambiente \textit{Linux}, em rever e aumentar a capacidade de escrever gramáticas I.C. que satisfaçam a condição LR(), desenvolvimento de processadores de linguagens(segundo o método da tradução dirigida pela sintaxe, suportado numa gramática tradutora) e utilização do par \textit{flex/yacc} como geradores de compiladores de texto. De entre os enunciados disponibilizados, o grupo ficou com a tarefa de desenvolver o número 1, - \textbf{Rede Semântica do Museu da Emigração}. Essencialmente, pretende-se descrever a rede semântica que suporta o Museu da Emigração e da Luso-descendência e gerar, posteriormente, um grafo (usando GraphViz / WebDot) que permita uma navegação conceptual sobre esse repositório de conhecimento: percorrer os caminhos do grafo, selecionar um nodo e saltar para uma página com info sobre esse nodo.
+\par Assim, ao nível deste enunciado, era requerido que se procedesse inicialmente à especificação da gramática concreta da linguagem de entrada. Posto isto, seria necessário desenvolver um reconhecedor léxico e sintático para a mesma linguagem (utilizando as ferramentas geradoras flex/yacc), e, finalmente, construir o gerador de código para produzir a resposta solicitada. Este gerador de código é construído associando ações semânticas de tradução às produções da gramática, recorrendo mais uma vez ao gerador yacc.
+\par Em suma, a Secção \ref{sec:2} descreve os preliminares necessários ao projeto, enquanto que a Secção \ref{sec:3} descreve a resolução do enunciado 1 do trabalho, com todos os pormenores da gramática desenvolvida(\ref{sec:3.2.1} a \ref{sec:3.2.4}). Apresentam-se, na Secção \ref{sec:4} alguns testes e resultados obtidos, e o relatório termina com uma breve conclusão na Secção~\ref{sec:5}, onde é feito um balanço do trabalho realizado, tendo em conta as dificuldades ao longo do desenvolvimento do mesmo. Em anexos (\ref{sec:6}) apresenta-se o código desenvolvido pelo grupo.
+
+
+
+
+\pagebreak
+\section{Preliminares/Contextualização}
+\label{sec:2}
+\hspace{3mm} Considera-se que, para o desenvolvimento deste exercício prático e para uma compreensão inicial do esquema utilizado no mesmo, é necessária uma breve e simples explicação do que faz o par lex/yacc e de como o grupo modelou o trabalho.
+\par Assim, o yacc e o gerador de analisador léxico lex são geralmente usados em conjunto. O Yacc usa uma gramática formal para analisar sintaticamente uma entrada, algo que o lex não consegue fazer somente com expressões regulares (o lex é limitado a simples máquinas de estado finito). Entretanto, o yacc não consegue ler a partir duma simples entrada de dados, ele requer uma série de tokens, que são geralmente fornecidos pelo lex. O lex age como um pré-processador do yacc.
+\par Desta forma, dividiu-se o trabalho em duas fases: na primeira, o código em flex faz o reconhecimento de cada símbolo encontrado no ficheiro, e, posteriormente, o yacc, dependendo do que é passado no flex, efetua uma ação, que terá funções/estruturas que serão utilizadas de um módulo auxiliar. Mais concretamente, as estruturas de dados utilizadas no ficheiro "emigrantes.y" pertencem à biblioteca \emph{Glib}.
+Resume-se abaixo os três módulos constituintes deste modelo, e o encadeamento entre eles.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=13cm]{modulosTrabalho.PNG}
+\caption{Módulos constituintes do modelo de trabalho utilizado pelo grupo}
+\end{figure}
+
+É de notar que, para o caso deste exercício em concreto, o ficheiro de output será um grafo, por razões que o grupo explicará mais à frente.
+
+
+\pagebreak
+
+
+\section{Rede Semântica do Museu da Emigracão - Análise e especificação da linguagem}
+\label{sec:3}
+\hspace{3.5mm} Este tema visa a descrição de parte da rede semântica que suporta o Museu da Emigração, das Comunidades e da Luso-descendência \cite{siteMuseu}, e a geração de um grafo (usando GraphViz / WebDot) de modo a permitir a navegação conceptual sobre este repositório de conhecimento. Deste modo, deverá ser possível, para além de percorrer os caminhos do grafo, selecionar um nodo e saltar para uma página com info sobre esse elemento. Para o efeito, a linguagem definida deve processar três tipos de nodos, ou vértices, da rede:
+
+\begin{itemize}
+    \item emigrante - nodo com dados pessoais e dados relativos ao
+processo de emigração;
+    \item obra - nodo com identificação de palácios, fábricas, hospitais, escolas, capelas, etc;
+    \item evento - nodo com informação de bailes, saraus literários, saraus musicais, etc.
+\end{itemize}
+
+\bigskip
+E os seguintes arcos:
+
+\begin{itemize}
+    \item fez - liga emigrante a obra;
+    \item participou - liga emigrante a evento;
+\end{itemize}
+
+\pagebreak
+\subsection{Criação de datasets}
+\label{sec:3.1}
+\hspace{3.5mm} Para o presente exercício, uma vez que não foram fornecidos quaiquer extratos de texto, o grupo definiu um ficheiro com o que seria a linguagem do exercício, como se apresenta abaixo:
+
+\bigskip
+
+\begin{lstlisting}
+<@\textcolor{red}{emigrante}@> joao:
+  nome: "Antonio Joao Joaquim"
+  nascimento: "1890-11-24"
+  morte: "1972-03-14"
+  natural: "Portugal"
+  partida: "1904-09-13"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=antonio+joao+joaquim&source=
+        lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AU
+        ICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+<@\textcolor{red}{obra}@> hospitalassis:
+  nome: "Hospital Manuel de Assis"
+  data: "1940-02-01"
+  local: "Sao Paulo"
+
+<@\textcolor{red}{obra}@> escolapotassio:
+  nome: "Escola Cloreto de Potassio"
+  data: "1943-04-20"
+  local: "Para"
+
+<@\textcolor{red}{obra}@> capelamoniz:
+  nome: "Capela Martim Manhas"
+  data: "1964-06-07"
+  local: "Belo Horizonte"
+
+<@\textcolor{red}{evento}@> bailereal47:
+  nome: "Baile Real da Realeza do Brasil numero 47"
+  data: "1952-03-29"
+  local: "Recife"
+  
+  (...)
+
+joao <@\textcolor{red}{fez}@> hospitalassis
+joao <@\textcolor{red}{fez}@> escolapotassio
+joao <@\textcolor{red}{fez}@> capelamoniz
+
+joao <@\textcolor{red}{participou}@> bailereal47
+joao <@\textcolor{red}{participou}@> inauguracaocapelamoniz
+
+joana <@\textcolor{red}{participou}@> bailereal47
+joana <@\textcolor{red}{fez}@> orfanatoteixeira
+\end{lstlisting}
+
+\bigskip
+
+\par Desta forma, são identificados emigrantes com a tag "emigrante", e declaradas as suas informações dentro dessa tag. O mesmo acontece para obras e eventos, onde cada uma tem um identificador e detalhes. Todos estes nodos do grafo serão correlacionados através das tags "fez" e "participou", de modo a unir emigrantes e eventos ou obras.
+
+
+\subsection{Gramática}
+\label{sec:3.2}
+\hspace{3.5mm} Nesta secção define-se a linguagem criada pelo grupo, começando-se por analisar os símbolos terminais e não terminais, partindo depois para as produções. Como visto nas aulas da unidade curricular, uma gramática G deve ser definida da seguinte maneira:
+
+\begin{itemize}
+    \item T representa o conjunto de símbolos terminais; 
+    \item N indica o conjunto de símbolos não-terminais;
+    \item S descreve o axioma da gramática;
+    \item P é o conjunto de regras de produções.
+\end{itemize}
+
+\par Assim sendo, a gramática ficará definida pela igualdade G=\{ T, N, S, P \}.
+\bigskip
+
+\subsubsection{Terminais}
+\label{sec:3.2.1}
+\hspace{3.5mm} Os terminais são símbolos constituintes de uma gramática, podendo aparecer quer na entrada, quer na saída de uma produção. Estes mesmo não podem ser derivados em "unidades menores", e, por decisão do grupo, os terminais serão designados por caracteres maiúsculos.
+
+\bigskip
+\begin{lstlisting}
+    T = { OBJECT_TYPE, STRING, OBJECT_ID, FIELD_ID, FEZ, PARTICIPOU, ERR }
+\end{lstlisting}
+
+
+\subsubsection{Não-terminais}
+\label{sec:3.2.2}
+\hspace{3.5mm} Os não-terminais são símbolos que pertencem a uma gramática, podendo aparecer apenas na saída de uma produção, ou mesmo ser derivados noutras produções, que podem ser compostas por mais símbolos terminais e não-terminais. O grupo definiu que estes símbolos seriam escritos todos com letra maiúscula.
+
+\bigskip
+
+\begin{lstlisting}
+    N = { OBJECTS, OBJECT, FIELDS, FIELD,  CONNECTION }
+\end{lstlisting}
+
+\subsubsection{Axioma}
+\label{sec:3.2.3}
+\hspace{3.5mm} O axioma é a raíz da árvore de derivação, e por onde se começa a primeira produção. Neste caso, designou-se o axioma por "OBJECTS", o qual derivar-se-á em objetos singulares e conexões.
+
+\bigskip
+
+\begin{lstlisting}
+    S = { OBJECTS }
+\end{lstlisting}
+
+
+\subsubsection{Produções}
+\label{sec:3.2.4}
+\hspace{3.5mm} Depois de analisados todos os conjuntos acima, relacionam-se agora o conjunto de símbolos, usando produções. Estas produções (regras) são consideradas as strings válidas que se podem formar, a partir do alfabeto da linguagem. Assim, começando pelo axioma "objects", que pode ser descrito por o conjunto de nodos do grafo, é fácil deduzir que este pode derivar em vazio, num "object" simples seguido de mais "objects", ou em "objects" e uma "connection" entre dois "object". Considera-se que um "object" representa apenas um nodo do grafo, e pode ser derivado no seu tipo ("object\_type"), id("object\_id") e campos ("fields"). Por sua vez, "fields" pode ser derivado apenas num "field" ou em vários ("fields field"). Como é sabido, o campo será composto pelo seu id e por uma string. Por fim, e generalizando, uma conexão ("connection") será sempre entre dois "object\_id", e pode ser do modo "fez" ou "participou", que explica o relacionamento entre um emigrante e os eventos e obras que ele participou ou elaborou, respetivamente.
+\bigskip
+
+\begin{lstlisting}
+    P = {
+        p0: OBJECTS -> OBJECTS OBJECT
+        p1: OBJECTS -> OBJECTS CONNECTION
+        p2: OBJECTS -> E
+        p3: OBJECTS -> ;
+        p4: OBJECT -> OBJECT_TYPE OBJECT_ID FIELDS
+        p5: OBJECT -> ;
+        p6: FIELDS -> FIELDS FIELD
+        p7: FIELDS -> FIELD
+        p8: FIELDS -> ;
+        p9: FIELD -> FIELD_ID STRING
+        p10: FIELD -> ;
+        p11: CONNECTION -> OBJECT_ID FEZ OBJECT_ID
+        p12: CONNECTION -> OBJECT_ID PARTICIPOU OBJECT_ID
+        p13: CONNECTION -> ;
+    }
+\end{lstlisting}
+
+\bigskip
+\bigskip
+\par Apresenta-se, finalmente, a gramática elaborada pelo grupo num formato mais simples e legível.
+\bigskip
+
+\begin{lstlisting}
+    OBJECTS : OBJECTS OBJECT
+            | OBJECTS CONNECTION
+            |
+            ;
+    
+    OBJECT : OBJECT_TYPE OBJECT_ID FIELDS
+           ;
+    
+    FIELDS : FIELDS FIELD
+           | FIELD
+           ;
+    
+    FIELD : FIELD_ID STRING
+          ;
+    
+    CONNECTION : OBJECT_ID FEZ OBJECT_ID
+               | OBJECT_ID PARTICIPOU OBJECT_ID
+               ;
+\end{lstlisting}
+
+\pagebreak
+\subsection{Ações semânticas e expressões regulares}
+\label{sec:3.3}
+\hspace{3.5mm} Antes de declarar as expressões regulares e respetivas ações semânticas, é de bom senso explicar os padrões mais usados pelo grupo, como forma a simplificar a sua leitura.
+
+\par Um ID poderá ser constituído por uma ou mais ocorrências de letras e números.
+\begin{lstlisting}
+        id       [a-zA-Z0-9]+
+\end{lstlisting}
+
+\par Um number será uma ou mais ocorrências de um número inteiro positivo. É de notar que o grupo acabou por não utilizar este padrão, mas manteve-o inalterado, pois achou útil num desenvolvimento futuro.
+\begin{lstlisting}
+        number   [0-9]+
+\end{lstlisting}
+
+\par Uma string será tudo o que aparecer, até chegar a uma aspa ou newline (uma ou mais ocorrêcias).
+\begin{lstlisting}
+        string   [^"\r\n]+
+\end{lstlisting}
+
+\par Um wspace ignora espaços em branco entre caracteres. Inclui o $\backslash$r para compatibilidade com Windows.
+\begin{lstlisting}
+        wspace   [ \r\n]*
+\end{lstlisting}
+
+\par Por fim, um newline define o que são considerados caracteres indicativos de uma nova linha, e é compatível com Windows e Linux.
+\begin{lstlisting}
+        newline  (\r\n|\n)
+\end{lstlisting}
+
+
+\bigskip
+\bigskip
+
+\par Finalmente, declaram-se e explicam-se as expressões regulares e as respetivas ações semânticas.
+\par Esta expressão regular apanha as palavras reservadas "emigrante", "obra", ou "evento", e comunica ao yacc que foi detetado um token do tipo OBJECT\_TYPE. (Para além disso, passa o valor do tipo dentro de yylval.str, mas neste momento o yacc não faz nada com o valor do OBJECT\_TYPE). Chama-se à atenção para, uma vez detetado isto, a entrada no contexto object\_id.
+
+\lstset{language=tex}
+\begin{lstlisting}
+(emigrante|obra|evento)   { printf("flex: Object type: %s\n", yytext);             
+                            BEGIN object_id; 
+                            yylval.str = strdup(yytext); 
+                            return OBJECT_TYPE; }
+\end{lstlisting}
+
+\bigskip
+\par A expressão abaixo é responsável por apanhar um ID, dentro do contexto inicial, o que significa que se segue uma conexão entre dois nodos. Exemplificando, em "alberto fez hospital", tem-se que o emigrante "alberto" é um object\_id de um object, e está ligado a um hospital pela conexão "fez". É de salientar que se entra no contexto "connection".
+
+\lstset{language=tex}
+\begin{lstlisting}
+{id}                      { printf("flex: Link ID: %s\n", yytext);                                                
+                            BEGIN connection; 
+                            yylval.str = strdup(yytext); 
+                            return OBJECT_ID; }
+\end{lstlisting}
+
+\bigskip
+\par Dentro do contexto "object\_id", é necessário eliminar os espaços entre o tipo de um objeto e o seu ID. É isso que a próxima expressão regular faz.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<object_id>[ ]            { /* Eating the space between object type 
+                               and its ID */ }
+\end{lstlisting}
+
+
+\pagebreak
+\par Ainda no mesmo contexto, é preciso apanhar o ID de um objeto. 
+
+\lstset{language=tex}
+\begin{lstlisting}
+<object_id>{id}           { printf("flex: Object ID: %s\n", yytext);               
+                            yylval.str = strdup(yytext); 
+                            return OBJECT_ID; }
+\end{lstlisting}
+
+\bigskip
+\par No mesmo contexto, é mandatório que se apanhe o espaço em branco no fim de um object\_id, e que se entre no contexto "field", uma vez que a seguir a um ID de um objeto (que acaba com dois pontos) vem um campo.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<object_id>:{wspace}      { BEGIN field; }
+\end{lstlisting}
+
+\bigskip
+\par Mudando de contexto para "field", é necessário apanhar o ID de um campo. Por exemplo, em "emigrante alberto: nome "Abreu", está-se a apanhar "nome", e é dito ao yacc que este token é um "field\_id".
+
+\lstset{language=tex}
+\begin{lstlisting}
+<field>{id}               { printf("flex: Field ID: %s\n", yytext);                                         
+                            yylval.str = strdup(yytext); 
+                            return FIELD_ID; }
+\end{lstlisting}
+
+\bigskip
+\par Ainda dentro do contexto anterior, a expressão regular seguinte apanha os dois pontos no fim de um "field\_id" (seguido de white spaces), e entra no contexto "field\_value", que vai apanhar o valor do campo.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<field>\:{wspace}\"       { BEGIN field_value; }
+\end{lstlisting}
+
+
+\bigskip
+\par Mudando de contexto para "field\_value", a próxima expressão regular captura o valor do campo. Tomando como exemplo "emigrante alberto: nome "Abreu", estaria-se a capturar o nome "Abreu". É passada a informação ao yacc que o que foi capturado é um token do tipo string.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<field_value>{string}     { printf("flex: String: %s\n", yytext);
+                            yylval.str = strdup(yytext); 
+                            return STRING; }
+\end{lstlisting}
+
+
+\bigskip
+\par A próxima expressão regular captura, dentro do mesmo contexto, as duas new lines ou mais no fim de um campo de um objeto. Quando isto acontece, é sinalizador de que não existem mais campos a seguir e volta-se ao contexto inicial.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<field_value>\"[ ]*{newline}{2,} { 
+                            printf("flex: Two newlines after field value\n");      
+                            BEGIN INITIAL; 
+                            }
+\end{lstlisting}
+
+
+\bigskip
+\par Por fim, neste contexto, a expressão abaixo apanha whitespaces no fim de um campo, até ao ponto de duas new lines seguidas, ou entrava-se na expressão regular acima. Isto acontece porque o flex escolhe o padrão que apanha a string mais comprida, e, em caso de empate, escolhe a primeira expressão regular que aparecer. Para além disto, sabe-se que, neste caso, aproxima-se um novo campo e é necessário voltar ao contexto field.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<field_value>\"{wspace}   { printf("flex: End of string (not two newlines)\n");    
+                            BEGIN field; }
+\end{lstlisting}
+
+
+\pagebreak
+\par Agora para o contexto connection, temos strings no formato "antonio fez asneiras". Desta forma, a próxima expressão captura o "fez" e retorna um token "FEZ".
+
+\lstset{language=tex}
+\begin{lstlisting}
+<connection>{wspace}fez{wspace} { printf("flex: fez\n");
+                                  return FEZ; }
+
+\end{lstlisting}
+
+
+\bigskip
+\par A próxima expressão é semelhante à acima designada, com a exceção de que apanha "participou" em vez de "fez", e retorna um token "PARTICIPOU".
+
+\lstset{language=tex}
+\begin{lstlisting}
+<connection>{wspace}participou{wspace}  { printf("flex: participou\n");                          
+                                          return PARTICIPOU; }
+\end{lstlisting}
+
+
+\bigskip
+\par No mesmo contexto, captura-se agora um ID de uma connection, seja a da esquerda ou a da direita. Num caso concreto, em "antonio fez hospital", "antonio" e "hospital" são dois object\_id.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<connection>{id}          { printf("flex: Link ID string: %s\n", yytext);          
+                            yylval.str = strdup(yytext); 
+                            return OBJECT_ID; }
+\end{lstlisting}
+
+
+\bigskip
+\par Ainda na mesma situação, é necessário apanhar os whitespaces no fim de um "antonio participou baile" e voltar ao contexto inicial.
+
+\lstset{language=tex}
+\begin{lstlisting}
+<connection>[ ]*{newline} { printf("flex: End of connection\n");                   
+                            BEGIN INITIAL; }
+\end{lstlisting}
+
+
+\bigskip
+\par Quase a terminar, a próxima expressão regular irá capturar os new lines, para que possam existir no input.
+
+\lstset{language=tex}
+\begin{lstlisting}
+{newline}                 { printf("flex: Eating newline.\n");                     
+                            yylineno++; }
+\end{lstlisting}
+
+\bigskip
+\par Por fim, é retornado o token "ERRO" por qualquer caractere que seja apanhado na próxima expressão regular.
+
+\lstset{language=tex}
+\begin{lstlisting}
+.                         { printf("flex: Unexpected character (return ERR).\n");  
+                            return ERR; }
+\end{lstlisting}
+
+
+\pagebreak
+\subsection{Estruturas de dados}
+\label{sec:3.4}
+\hspace{3.5mm} No yacc (ficheiro "emigrantes.y"), usaram-se os arrays dinâmicos da \emph{Glib} por uma questão de simplicidade. Desta forma, os dois arrays usados pelo grupo foram:
+
+\begin{itemize}
+    \item node\_data = g\_array\_new( FALSE, TRUE, sizeof(char*));
+    \item edge\_data = g\_array\_new( FALSE, TRUE, sizeof(char*)).
+\end{itemize}
+
+\bigskip
+\par Começando por explicar os argumentos de g\_array\_new, tem-se que:
+
+\begin{itemize}
+    \item FALSE - primeiro argumento, que indica que não se pretende que o array tenha um campo a 0 no fim;
+    \item TRUE - segundo argumento, sinalizador de que se quer inicializar o array a zeros;
+    \item sizeof(char*) - tamanho de cada elemento, em bytes.
+\end{itemize}
+
+\bigskip
+\par Desta forma, o array node\_data vai receber todos os tokens que forem capturados relacionados a nodos, pela ordem que aparecem. Já o array edge\_data recebe todos os tokens que forem apanhados relacionados a arestas, também pela ordem em que aparecem. No fim, os arrays têm o formato:
+
+\bigskip
+\lstset{language=tex}
+\begin{lstlisting}
+    node_data:
+      1: nome
+      2: Joao Oliveira
+      3: idade
+      4: 300
+      5: emigrante
+      6: joao
+    
+    edge_data:
+      1: antonio
+      2: hospital
+      3: fez
+\end{lstlisting}
+
+\bigskip
+\par A ordem dos tokens no array edge\_data é a ideal para imprimir a linha do dot que faz uma aresta.
+
+\lstset{language=tex}
+\begin{lstlisting}
+                joao -> hospitalassis[label="fez"]
+\end{lstlisting}
+
+\bigskip
+\par No entanto, a ordem dos argumentos do array node\_data parece bizarra, porque se apanha, em primeiro lugar, os campos e só depois o tipo do objeto e o seu ID. Por esta razão, ao percorrer este array será necessário, inicialmente, avançar até ser encontrado "emigrante", "obra" ou "evento" e com o auxílio de um índice secundário percorre-se tudo o que se ignorou neste processo. Ao percorrer o array com este índice secundário, vai-se escrevendo a linha do dot que cria um nó.
+
+\lstset{language=tex}
+\begin{lstlisting}
+           escolapotassio [label="{Escola Cloreto de Potassio | 
+                 Data: 1943-04-20 | Local: Para}"];
+\end{lstlisting}
+
+\bigskip
+\par Chama-se à atenção que também foi necessário código extra para inserir o caractere | entre os campos, e também para colocar o URL nos objetos que têm esse campo como último. 
+\pagebreak
+\subsection{Como executar}
+\label{sec:3.4}
+\hspace{3.5mm} Para executar o programa, o grupo criou a seguinte makefile, sendo assim necessário apenas digitar "make" na linha de comandos.
+
+\bigskip
+\lstset{language=C}
+\begin{lstlisting}
+LIBS=`pkg-config --cflags --libs glib-2.0`
+
+<@\textcolor{red}{emigrantes}@>: y.tab.o lex.yy.o
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -o emigrantes y.tab.o 
+	    lex.yy.o -ll -lm -lfl $(LIBS)
+
+<@\textcolor{red}{y.tab.o}@>: y.tab.c
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -c y.tab.c $(LIBS)
+
+<@\textcolor{red}{lex.yy.o}@>: lex.yy.c
+	gcc -D_XOPEN_SOURCE=700 -std=c99 -c lex.yy.c $(LIBS)
+
+<@\textcolor{red}{y.tab.c y.tab.h}@>: emigrantes.y
+	yacc -d emigrantes.y
+
+<@\textcolor{red}{lex.yy.c}@>: emigrantes.l y.tab.h
+	flex emigrantes.l
+
+\end{lstlisting}
+
+\pagebreak
+\section{Testes e Resultados}
+\label{sec:4}
+\hspace{3.5mm} Apresentam-se de seguida dois testes para o programa elaborado, juntamente com o desenho do grafo já processado a partir de uma ferramenta de Graphviz online\cite{webgraph}.
+
+
+\subsection{Caso 1}
+\label{sec:4.1}
+
+\subsubsection{Input}
+
+\lstset{language=tex}
+\begin{lstlisting}
+emigrante joao:
+  nome: "Antonio Joao Joaquim"
+  nascimento: "1890-11-24"
+  morte: "1972-03-14"
+  natural: "Portugal"
+  partida: "1904-09-13"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=antonio+joao+joaquim&source=
+        lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_
+        AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra hospitalassis:
+  nome: "Hospital Manuel de Assis"
+  data: "1940-02-01"
+  local: "Sao Paulo"
+
+obra escolapotassio:
+  nome: "Escola Cloreto de Potassio"
+  data: "1943-04-20"
+  local: "Para"
+
+obra capelamoniz:
+  nome: "Capela Martim Manhas"
+  data: "1964-06-07"
+  local: "Belo Horizonte"
+
+evento bailereal47:
+  nome: "Baile Real da Realeza do Brasil numero 47"
+  data: "1952-03-29"
+  local: "Recife"
+
+evento inauguracaocapelamoniz:
+  nome: "Inauguracao da Capela Martim Manhas"
+  data: "1964-06-09"
+  local: "Belo Horizonte"
+
+emigrante joana:
+  nome: "Joana Maria"
+  nascimento: "1892-10-25"
+  morte: "1972-03-15"
+  natural: "Portugal"
+  partida: "1904-10-19"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=joana+maria&source=lnms&tbm=
+        isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw
+        =1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra orfanatoteixeira:
+  nome: "Ofanato Mendes Teixeira"
+  data: "1947-02-10"
+  local: "Belo Horizonte"
+
+joao fez hospitalassis
+joao fez escolapotassio
+joao fez capelamoniz
+
+joao participou bailereal47
+joao participou inauguracaocapelamoniz
+
+joana participou bailereal47
+joana fez orfanatoteixeira
+
+
+\end{lstlisting}
+
+\pagebreak
+\subsubsection{Output}
+
+\lstset{language=tex}
+\begin{lstlisting}
+digraph D {
+    node [shape=Mrecord fontname="Arial"];
+    edge [fontname="Arial"];
+    joao [label="{Antonio Joao Joaquim | Nascimento: 1890-11-24 | 
+                  Morte: 1972-03-14 | Natural: Portugal | Partida: 
+                  1904-09-13 | Destino: Brasil}", URL="http://google.com"];
+    hospitalassis [label="{Hospital Manuel de Assis | Data: 1940-02-01 | 
+                           Local: Sao Paulo}"];
+    escolapotassio [label="{Escola Cloreto de Potassio | Data: 1943-04-20 | 
+                            Local: Para}"];
+    capelamoniz [label="{Capela Martim Manhas | Data: 1964-06-07 | Local: 
+                         Belo Horizonte}"];
+    bailereal47 [label="{Baile Real da Realeza do Brasil Numero 47 | 
+                         Data: 1952-03-29 | Local: Recife}"];
+    inauguracaocapelamoniz [label="{Inauguracao da Capela Martim Manhas | 
+                            Data: 1964-06-09 | Local: Belo Horizonte}"];
+
+    joao -> hospitalassis[label="fez"]
+    joao -> escolapotassio[label="fez"]
+    joao -> capelamoniz[label="fez"]
+    joao -> bailereal47[label="participou"]
+    joao -> inauguracaocapelamoniz[label="participou"]
+
+    joao2 [label="{Joana Joaquim | Nascimento: 1890-11-23 | Morte: 1972-03-15 |
+                   Natural: Portugal | Partida: 1904-09-13 | Destino: Brasil}",
+                   URL="http://google.com"];
+    escolapotassio2 [label="{Escola Cloreto de Potassio | Data: 1943-04-20 |
+                             Local: Para}"];
+    capelamoniz2 [label="{Capela Martim Manhas | Data: 1964-06-07 | 
+                          Local: Belo Horizonte}"];
+    bailereal472 [label="{Baile Real da Realeza do Brasil Numero 47 | 
+                          Data: 1952-03-29 | Local: Recife}"];
+    inauguracaocapelamoniz2 [label="{Inauguracao da Capela Martim Manhas | 
+                                     Data: 1964-06-09 | Local: Belo Horizonte}"];
+
+    joao2 -> hospitalassis[label="fez"]
+    joao2 -> escolapotassio2[label="fez"]
+    joao2 -> capelamoniz2[label="fez"]
+    joao2 -> bailereal472[label="participou"]
+    joao2 -> inauguracaocapelamoniz2[label="participou"]
+}
+
+\end{lstlisting}
+
+
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=23cm,height=11cm,keepaspectratio]{grafo1.PNG}
+\caption{Desenho do grafo para o caso 1}
+\end{sidewaysfigure}
+
+\pagebreak
+\subsection{Caso 2}
+\label{sec:4.1}
+
+
+\subsubsection{Input}
+
+\lstset{language=tex}
+\begin{lstlisting}
+emigrante alberto:
+  nome: "Alberto Faria"
+  nascimento: "1920-11-22"
+  morte: "2002-05-24"
+  natural: "Portugal"
+  partida: "1950-01-13"
+  destino: "Franca"
+  url: "https://www.google.pt/search?q=alberto+faria&source=
+        lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHaz
+        RDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra hospitalgomes:
+  nome: "Hospital Gomes de Sa"
+  data: "1974-02-01"
+  local: "Paris"
+
+obra restaurantebras:
+  nome: "Restaurante Bras"
+  data: "1989-04-20"
+  local: "Marseille"
+
+obra capelaforte:
+  nome: "Capela Fortalecimento"
+  data: "1997-06-07"
+  local: "Aix En Provence"
+
+evento inauguracaocapelaforte:
+  nome: "Inauguracao da Capela Fortalecimento"
+  data: "1952-03-29"
+  local: "Aix En Provence"
+
+alberto fez hospitalgomes
+alberto fez restaurantebras
+alberto fez capelaforte
+
+alberto participou inauguracaocapelaforte
+
+\end{lstlisting}
+
+\pagebreak
+\subsubsection{Output}
+
+\lstset{language=tex}
+\begin{lstlisting}
+digraph D {
+  node [shape=Mrecord fontname="Arial"];
+  edge [fontname="Arial"];
+  alberto [label="{Nome: Alberto Faria | Nascimento: 1920-11-22 | 
+                   Morte: 2002-05-24 | Natural: Portugal | 
+                   Partida: 1950-01-13 | Destino: Franca}", 
+                   URL="https://www.google.pt/search?q=alberto+faria
+                   &source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPb
+                   AhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=
+                   6TU1D4xJKAN5cM:"];
+  hospitalgomes [label="{Nome: Hospital Gomes de Sa | Data: 1974-02-01 
+                         | Local: Paris}"];
+  restaurantebras [label="{Nome: Restaurante Bras | Data: 1989-04-20 |
+                           Local: Marseille}"];
+  capelaforte [label="{Nome: Capela Fortalecimento | Data: 1997-06-07 |
+                       Local: Aix En Provence}"];
+  inauguracaocapelaforte [label="{Nome: Inauguracao da Capela 
+                                  Fortalecimento | Data: 1952-03-29 |
+                                  Local: Aix En Provence}"];
+  alberto -> hospitalgomes[label="fez"]
+  alberto -> restaurantebras[label="fez"]
+  alberto -> capelaforte[label="fez"]
+  alberto -> inauguracaocapelaforte[label="participou"]
+}
+
+
+\end{lstlisting}
+
+
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=23cm,height=11cm,keepaspectratio]{grafo2.PNG}
+\caption{Desenho do grafo para o caso 2}
+\end{sidewaysfigure}
+
+
+
+
+
+\pagebreak
+\section{Conclusões e Sugestões}
+\label{sec:5}
+\hspace{3.5mm} A resolução deste último exercício prático foi bastante importante e enriquecedora, pois permitiu aos membros do grupo perceber e interiorizar melhor os conceitos abordados nas aulas práticas da Unidade Curricular de Processamento de Linguagens. Deste modo, foram adquiridos conhecimentos mais sólidos acerca de expressões regulares e ações semânticas, e da utilidade o par \textit{lex/yacc} pode ter num contexto real. De facto, foi possível perceber que a exigência de programar algo equivalente ao desenvolvido em Java (linguagens de maior domínio do grupo), por exemplo, seria muito maior. Assim, o grupo ficou satisfeito por ter desenvolvido este trabalho, de complexidade bastante superior aos anteriores exercícios da unidade curricular, em GAWK e FLEX.
+\par No que toca ao enunciado 1, em geral, uma das dificuldades residiu, em primeira instância, no desenvolvimento/escolha acertada da gramática e expressões regulares, de modo a prever todos os casos de exceção, tornando os programas mais robustos. Ainda assim, o grupo considera que o maior obstáculo, e fase mais dispendiosa de tempo, consistiu na elaboração de algoritmos que processassem ou transformassem os \emph{datasets} nos resultados desejados.
+\par Em suma, é feita uma apreciação positiva relativamente ao trabalho realizado, visto que a implementação de todas as funcionalidades propostas foram conseguidas com sucesso. O grupo conseguiu tirar partido dos conhecimentos adquiridos neste projeto, sentido-se capaz de, num contexto futuro, aplicar os conceitos subjacentes de forma eficaz.
+
+
+\pagebreak
+\section{Anexos}
+\label{sec:6}
+
+
+\subsection{Flex}
+\label{sec:6.1}
+
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
+\begin{lstlisting}
+%{
+#include <stdio.h>
+#include "y.tab.h"
+%}
+\end{lstlisting}
+
+\lstset{language=tex, commentstyle=\color{black}\ttfamily}
+\begin{lstlisting}
+id       [a-zA-Z0-9]+
+number   [0-9]+
+string   [^"\r\n]+
+wspace   [ \r\n]*
+newline  (\r\n|\n)
+
+%x object_id field field_value connection
+
+%%
+(emigrante|obra|evento) { printf("flex: Object type: %s\n", yytext);
+                          BEGIN object_id; 
+                          yylval.str = strdup(yytext); 
+                          return OBJECT_TYPE; }
+{id}                    { printf("flex: Link ID: %s\n", yytext);
+                          BEGIN connection; 
+                          yylval.str = strdup(yytext); 
+                          return OBJECT_ID; }
+<object_id>[ ]          { /* Eating the space between object type 
+                             and its ID */ }
+<object_id>{id}         { printf("flex: Object ID: %s\n", yytext);
+                          yylval.str = strdup(yytext); 
+                          return OBJECT_ID; }
+<object_id>:{wspace}    { BEGIN field; }
+<field>{id}             { printf("flex: Field ID: %s\n", yytext);
+                          yylval.str = strdup(yytext); 
+                          return FIELD_ID; }
+<field>\:{wspace}\"     { BEGIN field_value; }
+<field_value>{string}   { printf("flex: String: %s\n", yytext);
+                          yylval.str = strdup(yytext); 
+                          return STRING; }
+<field_value>\"[ ]*{newline}{2,}{printf("flex: Two newlines 
+                                 after field value\n");
+                                 BEGIN INITIAL; }
+<field_value>\"{wspace}               {printf("flex: End of 
+                                        string (not two newlines)\n");    
+                                       BEGIN field; }
+<connection>{wspace}fez{wspace}       {printf("flex: fez\n");                                 
+                                       return FEZ; }
+<connection>{wspace}participou{wspace}{printf("flex: participou\n");                          
+                                       return PARTICIPOU; }
+<connection>{id}                      {printf("flex: Link ID string:
+                                        %s\n", yytext);          
+                                       yylval.str = strdup(yytext); 
+                                       return OBJECT_ID; }
+<connection>[ ]*{newline}             {printf("flex: End of connection\n");                   
+                                       BEGIN INITIAL; }
+{newline}                             {printf("flex: Eating newline.\n");                     
+                                       yylineno++; }
+.                                     {printf("flex: Unexpected character 
+                                        (return ERR).\n");  
+                                       return ERR; }
+%%
+
+\end{lstlisting}
+
+
+
+\pagebreak
+\subsection{YACC}
+\label{sec:6.2}
+
+\lstset{language=C,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
+\begin{lstlisting}
+%{
+#include <stdio.h>
+#include <glib.h>
+#include <string.h>
+#include <ctype.h>
+#include "y.tab.h"
+
+extern int yylineno;
+extern char* yytext;
+extern int yylex();
+int yyerror(char*);
+
+/* node_data vai guardar todos os tokens relacionados com 
+   nodos do grafo, na ordem em que foram recebidos.
+   edge_data vai guardar todos os tokens relacionados com 
+   ligacoes do grafo. O trabalho de interpretar os conteudos
+   destes arrays (tendo em conta a ordem dos dados) e do for
+   loop que itera sobre o array.
+*/
+
+
+/* Formato: ["nome", "joao alberto", "idade", "895", [...], 
+             "emigrante", "joao", [...]] */
+GArray* node_data;
+/* Formato: ["joao", "capela", "fez", "antonio", "baile", "participou"] */
+GArray* edge_data; 
+%}
+
+%token OBJECT_TYPE STRING OBJECT_ID FIELD_ID FEZ PARTICIPOU ERR
+
+%union{
+  char* str;
+}
+
+%type <str> STRING OBJECT_TYPE OBJECT_ID FIELD_ID
+
+%start OBJECTS
+
+%%
+
+OBJECTS : OBJECTS OBJECT
+        | OBJECTS CONNECTION
+        |
+        ;
+
+OBJECT : OBJECT_TYPE OBJECT_ID FIELDS { char* one = strdup($1); 
+                                        char* two = strdup($2);
+                                        g_array_append_val(node_data, one);
+                                        g_array_append_val(node_data, two); }
+       ;
+
+
+FIELDS : FIELDS FIELD
+       | FIELD
+       ;
+
+FIELD : FIELD_ID STRING { char* one = strdup($1); 
+                          char* two = strdup($2); 
+                          g_array_append_val(node_data, one); 
+                          g_array_append_val(node_data, two); }
+      ;
+
+CONNECTION : OBJECT_ID FEZ OBJECT_ID { char* one = strdup($1); 
+                                       char* three = strdup($3); 
+                                       char* f = "fez"; 
+                                       g_array_append_val(edge_data, one);
+                                       g_array_append_val(edge_data, three);
+                                       g_array_append_val(edge_data, f); }
+           | OBJECT_ID PARTICIPOU OBJECT_ID{char* one = strdup($1); 
+                                            char* three = strdup($3); 
+                                            char* p = "participou";
+                                          g_array_append_val(edge_data,one);
+                                          g_array_append_val(edge_data,three);
+                                          g_array_append_val(edge_data,p);}
+           ;
+%%
+
+int main() {
+  node_data = g_array_new( FALSE, TRUE, sizeof(char*));
+  edge_data = g_array_new( FALSE, TRUE, sizeof(char*));
+  yyparse();
+
+  printf("\n\n\n\n\n=================== DOT OUTPUT ===================\n\n");
+
+  // Graph header
+  printf("digraph D {\n  node [shape=Mrecord fontname=\"Arial\"];\n  
+    edge [fontname=\"Arial\"];\n");
+
+  // Print every node
+  // (unsigned int because node_data->len is a guint)
+  unsigned int lastUsed = 0;
+  for (unsigned int i = 0; i < node_data->len; i++) {
+
+    // Look for emigrante, obra, or evento
+    if (strcmp(g_array_index(node_data, char*, i), "emigrante") == 0 ||
+        strcmp(g_array_index(node_data, char*, i), "obra") == 0 ||
+        strcmp(g_array_index(node_data, char*, i), "evento") == 0
+    ) {
+      // Found!
+      // Now pick back up on the "lastUsed" index and create the node
+
+      // Start node
+      printf("%s [label=\"{", g_array_index(node_data, char*, i+1));
+      char* label;
+      char* string;
+      int startedWriting = 0;
+      for (; lastUsed < i; lastUsed++) {
+
+        label = g_array_index(node_data, char*, lastUsed);
+        label[0] = toupper(label[0]); // Uppercase first char of label
+
+        lastUsed++; // Go to next node_data token
+
+        string = g_array_index(node_data, char*, lastUsed);
+
+        if (strcmp(label, "Url") == 0) {
+          break;
+        }
+
+        if (startedWriting) {
+          printf(" | ");
+        } else {
+          startedWriting = 1;
+        }
+
+        printf("%s: %s", label, string);
+      }
+
+      // Finished wrting node
+      // Print URL if we stopped on that field,
+      // or just close the node if no URL found at the end
+      if (strcmp(label, "Url") == 0) {
+        printf("}\", URL=\"%s\"];\n", string);
+        lastUsed += 3;//Move lastUsed 3steps forward because we stopped at url
+      } else {
+        printf("}\"];\n");
+        lastUsed += 2; // Move lastUsed 2 steps forward
+      }
+    }
+  }
+
+  // Print every edge
+  for (unsigned int j = 0; j < edge_data->len; j++) {
+    char* doer = g_array_index(edge_data, char*, j);
+    j++;
+    char* done = g_array_index(edge_data, char*, j);
+    j++;
+    char* action = g_array_index(edge_data, char*, j);
+
+    printf("%s -> %s[label=\"%s\"]\n", doer, done, action);
+  }
+
+  // Close graph
+  printf("}\n");
+
+  return 0;
+}
+
+int yyerror(char* err) {
+  fprintf(stderr,"Error: %s\nyytext: %s\nyylineno: %d\n",err,yytext,yylineno);
+  return 0;
+}
+
+\end{lstlisting} 
+
+
+\pagebreak
+\printbibliography
+
+\end{document}

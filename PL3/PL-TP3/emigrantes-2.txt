@@ -1,0 +1,34 @@
+emigrante alberto:
+  nome: "Alberto Faria"
+  nascimento: "1920-11-22"
+  morte: "2002-05-24"
+  natural: "Portugal"
+  partida: "1950-01-13"
+  destino: "Franca"
+  url: "https://www.google.pt/search?q=alberto+faria&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
+obra hospitalgomes:
+  nome: "Hospital Gomes de Sa"
+  data: "1974-02-01"
+  local: "Paris"
+
+obra restaurantebras:
+  nome: "Restaurante Bras"
+  data: "1989-04-20"
+  local: "Marseille"
+
+obra capelaforte:
+  nome: "Capela Fortalecimento"
+  data: "1997-06-07"
+  local: "Aix En Provence"
+
+evento inauguracaocapelaforte:
+  nome: "Inauguracao da Capela Fortalecimento"
+  data: "1952-03-29"
+  local: "Aix En Provence"
+
+alberto fez hospitalgomes
+alberto fez restaurantebras
+alberto fez capelaforte
+
+alberto participou inauguracaocapelaforte
