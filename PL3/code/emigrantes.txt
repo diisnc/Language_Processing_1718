@@ -32,6 +32,21 @@ evento inauguracaocapelamoniz:
   data: "1964-06-09"
   local: "Belo Horizonte"
 
+evento corridatrofeureitor:
+  nome: "Corrida Trofeu Reitor"
+  data: "2018-06-13"
+  local: "UM"
+
+emigrante paulo:
+  nome: "Paulo Freitas"
+  nascimento: "1999-10-25"
+  morte: "1972-03-15"
+  teste: "umdoistres"
+  natural: "Portugal"
+  partida: "1904-10-19"
+  destino: "Brasil"
+  url: "https://www.google.pt/search?q=paulo+freitas&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiMn8Sb6cPbAhUIuhQKHazRDJMQ_AUICigB&biw=1920&bih=974#imgrc=6TU1D4xJKAN5cM:"
+
 emigrante joana:
   nome: "Joana Maria"
   nascimento: "1892-10-25"
@@ -55,3 +70,7 @@ joao participou inauguracaocapelamoniz
 
 joana participou bailereal47
 joana fez orfanatoteixeira
+
+joao participou corridatrofeureitor
+joana participou corridatrofeureitor
+paulo participou corridatrofeureitor
